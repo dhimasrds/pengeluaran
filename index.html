@@ -67,7 +67,11 @@
       <h2 class="font-semibold mb-2">Form Pengeluaran</h2>
       <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-2">
         <input type="date" id="tanggal" class="border p-2 rounded"/>
-        <input type="text" id="kategori" placeholder="Kategori" class="border p-2 rounded"/>
+        <select id="kategori" class="border p-2 rounded">
+          <option value="food & beverages">Food & Beverages</option>
+          <option value="entertainment">Entertainment</option>
+          <option value="groceries">Groceries</option>
+        </select>
         <input type="text" id="catatan" placeholder="Catatan" class="border p-2 rounded"/>
         <input type="number" id="nominal" placeholder="Jumlah Rp" class="border p-2 rounded"/>
       </div>
@@ -99,7 +103,7 @@
     </div>
   </div>
 
-  <!-- Firebase + App Script -->
+  <!-- Firebase + Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -118,7 +122,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
     let pengeluaranEditId = null;
 
     function formatBulan(bulanStr) {
@@ -140,6 +143,9 @@
         const bulanNow = new Date().toISOString().slice(0, 7);
         document.getElementById("bulan").value = bulanNow;
         document.getElementById("filterBulan").value = bulanNow;
+
+        // set default tanggal hari ini
+        document.getElementById("tanggal").value = new Date().toISOString().split("T")[0];
 
         loadRingkasan();
         loadPengeluaran();
@@ -267,7 +273,7 @@
       }
     };
 
-    // Ekspor CSV (download manual)
+    // Ekspor CSV
     window.eksporCSV = async function () {
       const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
       const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
@@ -333,10 +339,14 @@
         });
     };
 
-    // Sinkron bulan
+    // Sinkron bulan + default tanggal
     document.addEventListener("DOMContentLoaded", () => {
       const bulanInput = document.getElementById("bulan");
       const filterInput = document.getElementById("filterBulan");
+      const tanggalInput = document.getElementById("tanggal");
+
+      // default tanggal hari ini
+      tanggalInput.value = new Date().toISOString().split("T")[0];
 
       bulanInput.addEventListener("change", () => {
         filterInput.value = bulanInput.value;
