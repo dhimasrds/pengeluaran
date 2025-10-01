@@ -7,114 +7,208 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="login-section">
-    <h2>Login</h2>
-    <input type="email" id="email" placeholder="Email"><br>
-    <input type="password" id="password" placeholder="Password"><br>
-    <button onclick="login()">Login</button>
-  </div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { 
+    getAuth, signInWithEmailAndPassword, signOut, updatePassword 
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { 
+    getFirestore, collection, addDoc, getDocs, query, orderBy, where, doc, setDoc 
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  <div id="dashboard" style="display:none;">
-    <h2>Dashboard Pengeluaran</h2>
-    <p id="limit-info"></p>
-    <div id="progress-bar"><div id="progress"></div></div>
+  // ✅ Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDlTuRouYleRsIqY1e0dVs0DdUn9vpGsaw",
+    authDomain: "pengeluaran-83a36.firebaseapp.com",
+    projectId: "pengeluaran-83a36",
+    storageBucket: "pengeluaran-83a36.firebasestorage.app",
+    messagingSenderId: "1092761187117",
+    appId: "1:1092761187117:web:0acba9a85b81f1b0c9d9a4",
+    measurementId: "G-LKF5YFEC8P"
+  };
 
-    <h3>Tambah Pengeluaran</h3>
-    <input type="date" id="tanggal">
-    <input type="text" id="kategori" placeholder="Kategori">
-    <input type="number" id="nominal" placeholder="Nominal">
-    <input type="text" id="catatan" placeholder="Catatan">
-    <button onclick="tambahPengeluaran()">Simpan</button>
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    <h3>Riwayat Pengeluaran</h3>
-    <ul id="list-pengeluaran"></ul>
-
-    <button onclick="logout()">Logout</button>
-  </div>
-
-  <!-- Firebase pakai modular SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    // Config dari Firebase Console
-    const firebaseConfig = {
-      apiKey: "AIzaSyDlTuRouYleRsIqY1e0dVs0DdUn9vpGsaw",
-      authDomain: "pengeluaran-83a36.firebaseapp.com",
-      projectId: "pengeluaran-83a36",
-      storageBucket: "pengeluaran-83a36.firebasestorage.app",
-      messagingSenderId: "1092761187117",
-      appId: "1:1092761187117:web:0acba9a85b81f1b0c9d9a4",
-      measurementId: "G-LKF5YFEC8P"
-    };
-
-    // Init Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    // Login
-    window.login = async function () {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        document.getElementById("login-section").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-        loadPengeluaran();
-      } catch (err) {
-        alert("Login gagal: " + err.message);
-      }
-    };
-
-    // Logout
-    window.logout = async function () {
-      await signOut(auth);
-      document.getElementById("login-section").style.display = "block";
-      document.getElementById("dashboard").style.display = "none";
-    };
-
-    // Tambah Data
-    window.tambahPengeluaran = async function () {
-      const data = {
-        tanggal: document.getElementById("tanggal").value,
-        kategori: document.getElementById("kategori").value,
-        nominal: parseFloat(document.getElementById("nominal").value),
-        catatan: document.getElementById("catatan").value,
-        createdAt: new Date()
-      };
-      try {
-        await addDoc(collection(db, "pengeluaran"), data);
-        loadPengeluaran();
-      } catch (err) {
-        alert("Gagal menambah data: " + err.message);
-      }
-    };
-
-    // Load Data
-    async function loadPengeluaran() {
-      const q = query(collection(db, "pengeluaran"), orderBy("tanggal", "desc"));
-      const querySnapshot = await getDocs(q);
-      let total = 0;
-      let list = "";
-      querySnapshot.forEach((doc) => {
-        const p = doc.data();
-        total += p.nominal;
-        list += `<li>${p.tanggal} - ${p.kategori}: Rp${p.nominal} (${p.catatan})</li>`;
-      });
-      document.getElementById("list-pengeluaran").innerHTML = list;
-      updateProgress(total);
+  // ==============================
+  // LOGIN / LOGOUT
+  // ==============================
+  window.login = async function() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+      document.getElementById("userEmail").innerText = auth.currentUser.email;
+      loadRingkasan();
+      loadPengeluaran();
+    } catch (err) {
+      alert("Login gagal: " + err.message);
     }
+  }
 
-    // Progress Bar
-    const LIMIT = 3000000; // Rp 3 juta
-    function updateProgress(total) {
-      const persen = Math.min((total / LIMIT) * 100, 100);
-      document.getElementById("progress").style.width = persen + "%";
-      document.getElementById("limit-info").innerText =
-        `Total bulan ini: Rp${total} / Rp${LIMIT}`;
+  window.logout = async function() {
+    await signOut(auth);
+    document.getElementById("login-section").style.display = "block";
+    document.getElementById("dashboard").style.display = "none";
+  }
+
+  // ==============================
+  // UBAH PASSWORD
+  // ==============================
+  window.ubahPassword = async function() {
+    const newPass = document.getElementById("newPassword").value;
+    const confirmPass = document.getElementById("confirmPassword").value;
+    if(newPass.length < 8) return alert("Minimal 8 karakter");
+    if(newPass !== confirmPass) return alert("Password tidak sama!");
+    try {
+      await updatePassword(auth.currentUser, newPass);
+      alert("Password berhasil diperbarui");
+    } catch(err) {
+      alert("Gagal update password: " + err.message);
     }
-  </script>
+  }
+
+  // ==============================
+  // SIMPAN LIMIT BULANAN
+  // ==============================
+  window.simpanLimit = async function() {
+    const bulan = document.getElementById("bulan").value;
+    const limit = parseInt(document.getElementById("limit").value);
+    if(!bulan || !limit) return alert("Isi bulan dan limit!");
+    const uid = auth.currentUser.uid;
+    await setDoc(doc(db, "limits", uid + "_" + bulan), {
+      uid, bulan, limit
+    });
+    alert("Limit bulanan disimpan!");
+    loadRingkasan();
+  }
+
+  // Ambil limit bulan sekarang
+  async function getLimit(bulan) {
+    const uid = auth.currentUser.uid;
+    const ref = doc(db, "limits", uid + "_" + bulan);
+    const snap = await getDocs(query(collection(db, "limits"), where("bulan", "==", bulan), where("uid", "==", uid)));
+    if(!snap.empty) {
+      return snap.docs[0].data().limit;
+    }
+    return null;
+  }
+
+  // ==============================
+  // TAMBAH PENGELUARAN
+  // ==============================
+  window.tambahPengeluaran = async function() {
+    const tanggal = document.getElementById("tanggal").value;
+    const kategori = document.getElementById("kategori").value;
+    const catatan = document.getElementById("catatan").value;
+    const nominal = parseInt(document.getElementById("nominal").value);
+    if(!tanggal || !nominal) return alert("Tanggal & nominal wajib diisi");
+
+    const data = {
+      uid: auth.currentUser.uid,
+      tanggal,
+      kategori,
+      catatan,
+      nominal,
+      createdAt: new Date()
+    };
+
+    await addDoc(collection(db, "pengeluaran"), data);
+    document.getElementById("catatan").value = "";
+    document.getElementById("nominal").value = "";
+    loadRingkasan();
+    loadPengeluaran();
+  }
+
+  // ==============================
+  // LOAD RINGKASAN
+  // ==============================
+  async function loadRingkasan() {
+    const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0,7);
+    document.getElementById("bulan").value = bulan;
+
+    const q = query(
+      collection(db, "pengeluaran"), 
+      where("uid", "==", auth.currentUser.uid)
+    );
+    const querySnapshot = await getDocs(q);
+
+    let total = 0;
+    querySnapshot.forEach(doc => {
+      const p = doc.data();
+      if(p.tanggal.startsWith(bulan)) total += p.nominal;
+    });
+
+    const limit = await getLimit(bulan) || 0;
+    const sisa = limit ? (limit - total) : "-";
+    const util = limit ? ((total/limit)*100).toFixed(1) : "0";
+
+    document.getElementById("totalPengeluaran").innerText = "Rp" + total.toLocaleString();
+    document.getElementById("sisaLimit").innerText = limit ? "Rp" + sisa.toLocaleString() : "-";
+    document.getElementById("utilisasi").innerText = util + "%";
+  }
+
+  // ==============================
+  // LOAD DATA PENGELUARAN
+  // ==============================
+  async function loadPengeluaran() {
+    const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0,7);
+    const q = query(
+      collection(db, "pengeluaran"), 
+      where("uid", "==", auth.currentUser.uid),
+      orderBy("tanggal", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+
+    let rows = "";
+    querySnapshot.forEach(doc => {
+      const p = doc.data();
+      if(p.tanggal.startsWith(bulan)) {
+        rows += `
+          <tr>
+            <td class="border p-2">${p.tanggal}</td>
+            <td class="border p-2">${p.kategori}</td>
+            <td class="border p-2">${p.catatan || "-"}</td>
+            <td class="border p-2">Rp${p.nominal.toLocaleString()}</td>
+            <td class="border p-2 text-red-500 cursor-pointer">Hapus</td>
+          </tr>`;
+      }
+    });
+
+    document.getElementById("tabelPengeluaran").innerHTML = rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
+  }
+
+  // ==============================
+  // EKSPOR CSV
+  // ==============================
+  window.eksporCSV = async function() {
+    const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0,7);
+    const q = query(
+      collection(db, "pengeluaran"), 
+      where("uid", "==", auth.currentUser.uid),
+      orderBy("tanggal", "asc")
+    );
+    const querySnapshot = await getDocs(q);
+
+    let csv = "Tanggal,Kategori,Catatan,Nominal\n";
+    querySnapshot.forEach(doc => {
+      const p = doc.data();
+      if(p.tanggal.startsWith(bulan)) {
+        csv += `${p.tanggal},${p.kategori},${p.catatan},${p.nominal}\n`;
+      }
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `pengeluaran-${bulan}.csv`;
+    a.click();
+  }
+</script>
+
 </body>
 </html>
