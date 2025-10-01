@@ -180,25 +180,42 @@
     }
 
     // ===== Load Tabel =====
-    async function loadPengeluaran() {
-      const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0,7);
-      const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid), orderBy("tanggal", "desc"));
-      const snap = await getDocs(q);
-      let rows = "";
-      snap.forEach(d => {
-        const p = d.data();
-        if(p.tanggal.startsWith(bulan)) {
-          rows += `<tr>
-            <td class="border p-2">${p.tanggal}</td>
-            <td class="border p-2">${p.kategori}</td>
-            <td class="border p-2">${p.catatan||"-"}</td>
-            <td class="border p-2">Rp${p.nominal.toLocaleString()}</td>
-            <td class="border p-2 text-red-500 cursor-pointer">Hapus</td>
-          </tr>`;
-        }
-      });
-      document.getElementById("tabelPengeluaran").innerHTML = rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
+   async function loadPengeluaran() {
+  const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0,7);
+  let q;
+  try {
+    q = query(
+      collection(db, "pengeluaran"),
+      where("uid", "==", auth.currentUser.uid),
+      orderBy("tanggal", "desc")
+    );
+  } catch (e) {
+    // fallback tanpa orderBy
+    q = query(
+      collection(db, "pengeluaran"),
+      where("uid", "==", auth.currentUser.uid)
+    );
+  }
+
+  const snap = await getDocs(q);
+  let rows = "";
+  snap.forEach(d => {
+    const p = d.data();
+    if (p.tanggal.startsWith(bulan)) {
+      rows += `<tr>
+        <td class="border p-2">${p.tanggal}</td>
+        <td class="border p-2">${p.kategori}</td>
+        <td class="border p-2">${p.catatan || "-"}</td>
+        <td class="border p-2">Rp${p.nominal.toLocaleString()}</td>
+        <td class="border p-2 text-red-500 cursor-pointer">Hapus</td>
+      </tr>`;
     }
+  });
+
+  document.getElementById("tabelPengeluaran").innerHTML =
+    rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
+}
+
 
     // ===== Ekspor CSV =====
     window.eksporCSV = async function() {
