@@ -4,211 +4,217 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rekap Pengeluaran Bulanan</title>
-  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { 
-    getAuth, signInWithEmailAndPassword, signOut, updatePassword 
-  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { 
-    getFirestore, collection, addDoc, getDocs, query, orderBy, where, doc, setDoc 
-  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+<body class="bg-gray-50 min-h-screen p-6">
 
-  // ✅ Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyDlTuRouYleRsIqY1e0dVs0DdUn9vpGsaw",
-    authDomain: "pengeluaran-83a36.firebaseapp.com",
-    projectId: "pengeluaran-83a36",
-    storageBucket: "pengeluaran-83a36.firebasestorage.app",
-    messagingSenderId: "1092761187117",
-    appId: "1:1092761187117:web:0acba9a85b81f1b0c9d9a4",
-    measurementId: "G-LKF5YFEC8P"
-  };
+  <!-- Login Section -->
+  <div id="login-section" class="max-w-md mx-auto bg-white shadow p-6 rounded">
+    <h2 class="text-xl font-bold mb-4">Login</h2>
+    <input type="email" id="email" placeholder="Email" class="border p-2 mb-2 w-full rounded">
+    <input type="password" id="password" placeholder="Password" class="border p-2 mb-4 w-full rounded">
+    <button onclick="login()" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Login</button>
+  </div>
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+  <!-- Dashboard -->
+  <div id="dashboard" style="display:none;" class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Rekap Pengeluaran Bulanan</h1>
+      <div>
+        <span id="userEmail" class="mr-4 text-gray-700"></span>
+        <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
+      </div>
+    </div>
 
-  // ==============================
-  // LOGIN / LOGOUT
-  // ==============================
-  window.login = async function() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      document.getElementById("login-section").style.display = "none";
-      document.getElementById("dashboard").style.display = "block";
-      document.getElementById("userEmail").innerText = auth.currentUser.email;
-      loadRingkasan();
-      loadPengeluaran();
-    } catch (err) {
-      alert("Login gagal: " + err.message);
-    }
-  }
+    <!-- Ringkasan -->
+    <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="bg-white shadow rounded p-4 text-center">
+        <p class="text-gray-500">Total Pengeluaran</p>
+        <p id="totalPengeluaran" class="text-lg font-bold">Rp0</p>
+      </div>
+      <div class="bg-white shadow rounded p-4 text-center">
+        <p class="text-gray-500">Sisa Limit</p>
+        <p id="sisaLimit" class="text-lg font-bold">-</p>
+      </div>
+      <div class="bg-white shadow rounded p-4 text-center">
+        <p class="text-gray-500">Utilisasi</p>
+        <p id="utilisasi" class="text-lg font-bold">0%</p>
+      </div>
+    </div>
 
-  window.logout = async function() {
-    await signOut(auth);
-    document.getElementById("login-section").style.display = "block";
-    document.getElementById("dashboard").style.display = "none";
-  }
+    <!-- Atur Limit -->
+    <div class="bg-white shadow rounded p-4 mb-6">
+      <h2 class="font-semibold mb-2">Atur Limit Bulanan</h2>
+      <div class="flex gap-2">
+        <input type="month" id="bulan" class="border p-2 rounded">
+        <input type="number" id="limit" placeholder="Limit Bulanan Rp" class="border p-2 rounded">
+        <button onclick="simpanLimit()" class="bg-blue-600 text-white px-4 py-2 rounded">Simpan</button>
+        <button onclick="eksporCSV()" class="bg-gray-400 text-white px-4 py-2 rounded">Ekspor</button>
+      </div>
+    </div>
 
-  // ==============================
-  // UBAH PASSWORD
-  // ==============================
-  window.ubahPassword = async function() {
-    const newPass = document.getElementById("newPassword").value;
-    const confirmPass = document.getElementById("confirmPassword").value;
-    if(newPass.length < 8) return alert("Minimal 8 karakter");
-    if(newPass !== confirmPass) return alert("Password tidak sama!");
-    try {
-      await updatePassword(auth.currentUser, newPass);
-      alert("Password berhasil diperbarui");
-    } catch(err) {
-      alert("Gagal update password: " + err.message);
-    }
-  }
+    <!-- Tambah Pengeluaran -->
+    <div class="bg-white shadow rounded p-4 mb-6">
+      <h2 class="font-semibold mb-2">Tambah Pengeluaran</h2>
+      <div class="grid grid-cols-4 gap-2 mb-2">
+        <input type="date" id="tanggal" class="border p-2 rounded">
+        <input type="text" id="kategori" placeholder="Kategori" class="border p-2 rounded">
+        <input type="text" id="catatan" placeholder="Catatan" class="border p-2 rounded">
+        <input type="number" id="nominal" placeholder="Jumlah Rp" class="border p-2 rounded">
+      </div>
+      <button onclick="tambahPengeluaran()" class="bg-blue-600 text-white px-4 py-2 rounded">Tambah</button>
+    </div>
 
-  // ==============================
-  // SIMPAN LIMIT BULANAN
-  // ==============================
-  window.simpanLimit = async function() {
-    const bulan = document.getElementById("bulan").value;
-    const limit = parseInt(document.getElementById("limit").value);
-    if(!bulan || !limit) return alert("Isi bulan dan limit!");
-    const uid = auth.currentUser.uid;
-    await setDoc(doc(db, "limits", uid + "_" + bulan), {
-      uid, bulan, limit
-    });
-    alert("Limit bulanan disimpan!");
-    loadRingkasan();
-  }
+    <!-- Tabel -->
+    <div class="bg-white shadow rounded p-4">
+      <h2 class="font-semibold mb-2">Riwayat Pengeluaran</h2>
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="border p-2">Tanggal</th>
+            <th class="border p-2">Kategori</th>
+            <th class="border p-2">Catatan</th>
+            <th class="border p-2">Jumlah (Rp)</th>
+            <th class="border p-2">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tabelPengeluaran">
+          <tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-  // Ambil limit bulan sekarang
-  async function getLimit(bulan) {
-    const uid = auth.currentUser.uid;
-    const ref = doc(db, "limits", uid + "_" + bulan);
-    const snap = await getDocs(query(collection(db, "limits"), where("bulan", "==", bulan), where("uid", "==", uid)));
-    if(!snap.empty) {
-      return snap.docs[0].data().limit;
-    }
-    return null;
-  }
+  <!-- Firebase Script langsung di index -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, where, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // ==============================
-  // TAMBAH PENGELUARAN
-  // ==============================
-  window.tambahPengeluaran = async function() {
-    const tanggal = document.getElementById("tanggal").value;
-    const kategori = document.getElementById("kategori").value;
-    const catatan = document.getElementById("catatan").value;
-    const nominal = parseInt(document.getElementById("nominal").value);
-    if(!tanggal || !nominal) return alert("Tanggal & nominal wajib diisi");
-
-    const data = {
-      uid: auth.currentUser.uid,
-      tanggal,
-      kategori,
-      catatan,
-      nominal,
-      createdAt: new Date()
+    // Config Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlTuRouYleRsIqY1e0dVs0DdUn9vpGsaw",
+      authDomain: "pengeluaran-83a36.firebaseapp.com",
+      projectId: "pengeluaran-83a36",
+      storageBucket: "pengeluaran-83a36.firebasestorage.app",
+      messagingSenderId: "1092761187117",
+      appId: "1:1092761187117:web:0acba9a85b81f1b0c9d9a4",
+      measurementId: "G-LKF5YFEC8P"
     };
 
-    await addDoc(collection(db, "pengeluaran"), data);
-    document.getElementById("catatan").value = "";
-    document.getElementById("nominal").value = "";
-    loadRingkasan();
-    loadPengeluaran();
-  }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  // ==============================
-  // LOAD RINGKASAN
-  // ==============================
-  async function loadRingkasan() {
-    const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0,7);
-    document.getElementById("bulan").value = bulan;
+    // ===== Login =====
+    window.login = async function() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        document.getElementById("login-section").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        document.getElementById("userEmail").innerText = auth.currentUser.email;
+        loadRingkasan();
+        loadPengeluaran();
+      } catch (err) {
+        alert("Login gagal: " + err.message);
+      }
+    }
 
-    const q = query(
-      collection(db, "pengeluaran"), 
-      where("uid", "==", auth.currentUser.uid)
-    );
-    const querySnapshot = await getDocs(q);
+    // ===== Logout =====
+    window.logout = async function() {
+      await signOut(auth);
+      document.getElementById("login-section").style.display = "block";
+      document.getElementById("dashboard").style.display = "none";
+    }
 
-    let total = 0;
-    querySnapshot.forEach(doc => {
-      const p = doc.data();
-      if(p.tanggal.startsWith(bulan)) total += p.nominal;
-    });
+    // ===== Simpan Limit =====
+    window.simpanLimit = async function() {
+      const bulan = document.getElementById("bulan").value;
+      const limit = parseInt(document.getElementById("limit").value);
+      if(!bulan || !limit) return alert("Isi bulan dan limit!");
+      const uid = auth.currentUser.uid;
+      await setDoc(doc(db, "limits", uid + "_" + bulan), { uid, bulan, limit });
+      loadRingkasan();
+    }
 
-    const limit = await getLimit(bulan) || 0;
-    const sisa = limit ? (limit - total) : "-";
-    const util = limit ? ((total/limit)*100).toFixed(1) : "0";
+    async function getLimit(bulan) {
+      const uid = auth.currentUser.uid;
+      const q = query(collection(db, "limits"), where("uid", "==", uid), where("bulan", "==", bulan));
+      const snap = await getDocs(q);
+      if(!snap.empty) return snap.docs[0].data().limit;
+      return 0;
+    }
 
-    document.getElementById("totalPengeluaran").innerText = "Rp" + total.toLocaleString();
-    document.getElementById("sisaLimit").innerText = limit ? "Rp" + sisa.toLocaleString() : "-";
-    document.getElementById("utilisasi").innerText = util + "%";
-  }
+    // ===== Tambah Pengeluaran =====
+    window.tambahPengeluaran = async function() {
+      const tanggal = document.getElementById("tanggal").value;
+      const kategori = document.getElementById("kategori").value;
+      const catatan = document.getElementById("catatan").value;
+      const nominal = parseInt(document.getElementById("nominal").value);
+      if(!tanggal || !nominal) return alert("Tanggal & nominal wajib diisi");
 
-  // ==============================
-  // LOAD DATA PENGELUARAN
-  // ==============================
-  async function loadPengeluaran() {
-    const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0,7);
-    const q = query(
-      collection(db, "pengeluaran"), 
-      where("uid", "==", auth.currentUser.uid),
-      orderBy("tanggal", "desc")
-    );
-    const querySnapshot = await getDocs(q);
+      await addDoc(collection(db, "pengeluaran"), {
+        uid: auth.currentUser.uid, tanggal, kategori, catatan, nominal, createdAt: new Date()
+      });
+      loadRingkasan();
+      loadPengeluaran();
+    }
 
-    let rows = "";
-    querySnapshot.forEach(doc => {
-      const p = doc.data();
-      if(p.tanggal.startsWith(bulan)) {
-        rows += `
-          <tr>
+    // ===== Load Ringkasan =====
+    async function loadRingkasan() {
+      const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0,7);
+      document.getElementById("bulan").value = bulan;
+      const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
+      const snap = await getDocs(q);
+      let total = 0;
+      snap.forEach(d => { if(d.data().tanggal.startsWith(bulan)) total += d.data().nominal });
+      const limit = await getLimit(bulan);
+      const sisa = limit ? (limit - total) : "-";
+      const util = limit ? ((total/limit)*100).toFixed(1) : "0";
+      document.getElementById("totalPengeluaran").innerText = "Rp" + total.toLocaleString();
+      document.getElementById("sisaLimit").innerText = limit ? "Rp" + sisa.toLocaleString() : "-";
+      document.getElementById("utilisasi").innerText = util + "%";
+    }
+
+    // ===== Load Tabel =====
+    async function loadPengeluaran() {
+      const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0,7);
+      const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid), orderBy("tanggal", "desc"));
+      const snap = await getDocs(q);
+      let rows = "";
+      snap.forEach(d => {
+        const p = d.data();
+        if(p.tanggal.startsWith(bulan)) {
+          rows += `<tr>
             <td class="border p-2">${p.tanggal}</td>
             <td class="border p-2">${p.kategori}</td>
-            <td class="border p-2">${p.catatan || "-"}</td>
+            <td class="border p-2">${p.catatan||"-"}</td>
             <td class="border p-2">Rp${p.nominal.toLocaleString()}</td>
             <td class="border p-2 text-red-500 cursor-pointer">Hapus</td>
           </tr>`;
-      }
-    });
+        }
+      });
+      document.getElementById("tabelPengeluaran").innerHTML = rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
+    }
 
-    document.getElementById("tabelPengeluaran").innerHTML = rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
-  }
-
-  // ==============================
-  // EKSPOR CSV
-  // ==============================
-  window.eksporCSV = async function() {
-    const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0,7);
-    const q = query(
-      collection(db, "pengeluaran"), 
-      where("uid", "==", auth.currentUser.uid),
-      orderBy("tanggal", "asc")
-    );
-    const querySnapshot = await getDocs(q);
-
-    let csv = "Tanggal,Kategori,Catatan,Nominal\n";
-    querySnapshot.forEach(doc => {
-      const p = doc.data();
-      if(p.tanggal.startsWith(bulan)) {
-        csv += `${p.tanggal},${p.kategori},${p.catatan},${p.nominal}\n`;
-      }
-    });
-
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `pengeluaran-${bulan}.csv`;
-    a.click();
-  }
-</script>
-
+    // ===== Ekspor CSV =====
+    window.eksporCSV = async function() {
+      const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0,7);
+      const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
+      const snap = await getDocs(q);
+      let csv = "Tanggal,Kategori,Catatan,Nominal\n";
+      snap.forEach(d => {
+        const p = d.data();
+        if(p.tanggal.startsWith(bulan)) csv += `${p.tanggal},${p.kategori},${p.catatan},${p.nominal}\n`;
+      });
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `pengeluaran-${bulan}.csv`; a.click();
+    }
+  </script>
 </body>
 </html>
