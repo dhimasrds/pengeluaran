@@ -14,38 +14,38 @@
     })();
   </script>
 </head>
-<body class="bg-gray-50 min-h-screen p-6">
+<body class="bg-gray-50 min-h-screen p-4 sm:p-6">
 
   <!-- Login -->
   <div id="login-section" class="max-w-md mx-auto bg-white shadow p-6 rounded">
-    <h2 class="text-xl font-bold mb-4">Login</h2>
+    <h2 class="text-xl font-bold mb-4 text-center">Login</h2>
     <input type="email" id="email" placeholder="Email" class="border p-2 mb-2 w-full rounded"/>
     <input type="password" id="password" placeholder="Password" class="border p-2 mb-4 w-full rounded"/>
     <button onclick="login()" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Login</button>
   </div>
 
   <!-- Dashboard -->
-  <div id="dashboard" style="display:none;" class="max-w-5xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
+  <div id="dashboard" style="display:none;" class="max-w-6xl mx-auto">
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
       <h1 class="text-2xl font-bold">Rekap Pengeluaran Bulanan</h1>
-      <div>
-        <span id="userEmail" class="mr-4 text-gray-700"></span>
-        <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded">Keluar</button>
+      <div class="flex items-center gap-2">
+        <span id="userEmail" class="text-gray-700 text-sm sm:text-base"></span>
+        <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded w-full sm:w-auto">Keluar</button>
       </div>
     </div>
 
     <!-- Ringkasan -->
-    <div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
       <div class="bg-white shadow rounded p-4 text-center">
-        <p class="text-gray-500">Total Pengeluaran</p>
+        <p class="text-gray-500 text-sm">Total Pengeluaran</p>
         <p id="totalPengeluaran" class="text-lg font-bold">Rp0</p>
       </div>
       <div class="bg-white shadow rounded p-4 text-center">
-        <p class="text-gray-500">Sisa Limit</p>
+        <p class="text-gray-500 text-sm">Sisa Limit</p>
         <p id="sisaLimit" class="text-lg font-bold">-</p>
       </div>
       <div class="bg-white shadow rounded p-4 text-center">
-        <p class="text-gray-500">Utilisasi</p>
+        <p class="text-gray-500 text-sm">Utilisasi</p>
         <p id="utilisasi" class="text-lg font-bold">0%</p>
       </div>
     </div>
@@ -53,47 +53,49 @@
     <!-- Limit Bulanan -->
     <div class="bg-white shadow rounded p-4 mb-6">
       <h2 class="font-semibold mb-2">Atur Limit Bulanan</h2>
-      <div class="flex gap-2 flex-wrap">
-        <input type="month" id="bulan" class="border p-2 rounded"/>
-        <input type="number" id="limit" placeholder="Limit Bulanan Rp" class="border p-2 rounded"/>
-        <button onclick="simpanLimit()" class="bg-blue-600 text-white px-4 py-2 rounded">Simpan</button>
-        <button onclick="eksporCSV()" class="bg-gray-500 text-white px-4 py-2 rounded">Ekspor</button>
-        <button onclick="kirimEmail()" class="bg-green-600 text-white px-4 py-2 rounded">Kirim ke Email</button>
+      <div class="flex flex-col sm:flex-row gap-2">
+        <input type="month" id="bulan" class="border p-2 rounded w-full sm:w-auto"/>
+        <input type="number" id="limit" placeholder="Limit Bulanan Rp" class="border p-2 rounded w-full sm:w-auto"/>
+        <button onclick="simpanLimit()" class="bg-blue-600 text-white px-4 py-2 rounded w-full sm:w-auto">Simpan</button>
+        <button onclick="eksporCSV()" class="bg-gray-500 text-white px-4 py-2 rounded w-full sm:w-auto">Ekspor</button>
+        <button onclick="kirimEmail()" class="bg-green-600 text-white px-4 py-2 rounded w-full sm:w-auto">Kirim ke Email</button>
       </div>
     </div>
 
     <!-- Tambah/Edit Pengeluaran -->
     <div class="bg-white shadow rounded p-4 mb-6">
       <h2 class="font-semibold mb-2">Form Pengeluaran</h2>
-      <div class="grid grid-cols-4 gap-2 mb-2">
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-2">
         <input type="date" id="tanggal" class="border p-2 rounded"/>
         <input type="text" id="kategori" placeholder="Kategori" class="border p-2 rounded"/>
         <input type="text" id="catatan" placeholder="Catatan" class="border p-2 rounded"/>
         <input type="number" id="nominal" placeholder="Jumlah Rp" class="border p-2 rounded"/>
       </div>
-      <button id="btnSimpan" onclick="simpanPengeluaran()" class="bg-blue-600 text-white px-4 py-2 rounded">Tambah</button>
+      <button id="btnSimpan" onclick="simpanPengeluaran()" class="bg-blue-600 text-white px-4 py-2 rounded w-full sm:w-auto">Tambah</button>
     </div>
 
     <!-- Riwayat Pengeluaran -->
     <div class="bg-white shadow rounded p-4">
-      <div class="mb-4">
-        <label for="filterBulan" class="mr-2 font-medium">Pilih Bulan:</label>
+      <div class="mb-4 flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+        <label for="filterBulan" class="font-medium">Pilih Bulan:</label>
         <input type="month" id="filterBulan" class="border p-2 rounded"/>
       </div>
-      <table class="w-full border-collapse">
-        <thead>
-          <tr class="bg-gray-100">
-            <th class="border p-2">Tanggal</th>
-            <th class="border p-2">Kategori</th>
-            <th class="border p-2">Catatan</th>
-            <th class="border p-2">Jumlah (Rp)</th>
-            <th class="border p-2">Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="tabelPengeluaran">
-          <tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>
-        </tbody>
-      </table>
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse text-sm sm:text-base">
+          <thead>
+            <tr class="bg-gray-100">
+              <th class="border p-2">Tanggal</th>
+              <th class="border p-2">Kategori</th>
+              <th class="border p-2">Catatan</th>
+              <th class="border p-2">Jumlah (Rp)</th>
+              <th class="border p-2">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tabelPengeluaran">
+            <tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -285,7 +287,7 @@
       a.click();
     };
 
-    // Kirim Email (dengan link CSV, bukan attachment)
+    // Kirim Email (pakai link CSV)
     window.kirimEmail = async function () {
       const bulanStr = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
       const bulanFormatted = formatBulan(bulanStr);
@@ -313,7 +315,6 @@
         return;
       }
 
-      // Buat link CSV
       const blob = new Blob([csv], { type: "text/csv" });
       const csvUrl = URL.createObjectURL(blob);
 
@@ -332,7 +333,7 @@
         });
     };
 
-    // Sinkron filter bulan
+    // Sinkron bulan
     document.addEventListener("DOMContentLoaded", () => {
       const bulanInput = document.getElementById("bulan");
       const filterInput = document.getElementById("filterBulan");
