@@ -317,24 +317,15 @@ window.kirimEmail = async function () {
     return;
   }
 
- const blob = new Blob([csv], { type: "text/csv" });
-const reader = new FileReader();
-reader.onload = async function () {
-  // ambil hanya bagian base64 (setelah koma)
-  const base64data = reader.result.split(",")[1];
+const blob = new Blob([csv], { type: "text/csv" });
+const url = URL.createObjectURL(blob);
 
-  const params = {
-    to_email: userEmail,
-    bulan: bulanFormatted,
-    rows_html: htmlRows,
-    attachments: [
-      {
-        name: `pengeluaran-${bulanStr}.csv`, // nama file
-        data: base64data, // data base64
-        encoding: "base64"
-      }
-    ]
-  };
+const params = {
+  to_email: userEmail,
+  bulan: bulanFormatted,
+  rows_html: htmlRows,
+  csv_url: url // tambahkan ini ke template
+};
 
   emailjs.send("gmailKU", "template_n1lowek", params)
     .then(() => {
