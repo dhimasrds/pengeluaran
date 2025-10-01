@@ -1,75 +1,78 @@
-// Konfigurasi Firebase (punyamu)
-const firebaseConfig = {
-  apiKey: "AIzaSyDlTuRouYleRsIqY1e0dVs0DdUn9vpGsaw",
-  authDomain: "pengeluaran-83a36.firebaseapp.com",
-  projectId: "pengeluaran-83a36",
-  storageBucket: "pengeluaran-83a36.firebasestorage.app",
-  messagingSenderId: "1092761187117",
-  appId: "1:1092761187117:web:0acba9a85b81f1b0c9d9a4",
-  measurementId: "G-LKF5YFEC8P"
-};
+<script type="module">
+  // Import modul dari Firebase CDN
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+  const firebaseConfig = {
+    apiKey: "AIzaSyDlTuRouYleRsIqY1e0dVs0DdUn9vpGsaw",
+    authDomain: "pengeluaran-83a36.firebaseapp.com",
+    projectId: "pengeluaran-83a36",
+    storageBucket: "pengeluaran-83a36.firebasestorage.app",
+    messagingSenderId: "1092761187117",
+    appId: "1:1092761187117:web:0acba9a85b81f1b0c9d9a4",
+    measurementId: "G-LKF5YFEC8P"
+  };
 
-// Login
-function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  // Init Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-  auth.signInWithEmailAndPassword(email, password)
-    .then(() => {
+  // Login
+  window.login = async function() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
       document.getElementById("login-section").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
       loadPengeluaran();
-    })
-    .catch(err => alert(err.message));
-}
+    } catch (err) {
+      alert(err.message);
+    }
+  }
 
-// Logout
-function logout() {
-  auth.signOut().then(() => {
+  // Logout
+  window.logout = async function() {
+    await signOut(auth);
     document.getElementById("login-section").style.display = "block";
     document.getElementById("dashboard").style.display = "none";
-  });
-}
+  }
 
-// Tambah Pengeluaran
-function tambahPengeluaran() {
-  const data = {
-    tanggal: document.getElementById("tanggal").value,
-    kategori: document.getElementById("kategori").value,
-    nominal: parseFloat(document.getElementById("nominal").value),
-    catatan: document.getElementById("catatan").value,
-    createdAt: new Date()
-  };
-  db.collection("pengeluaran").add(data).then(() => {
+  // Tambah data
+  window.tambahPengeluaran = async function() {
+    const data = {
+      tanggal: document.getElementById("tanggal").value,
+      kategori: document.getElementById("kategori").value,
+      nominal: parseFloat(document.getElementById("nominal").value),
+      catatan: document.getElementById("catatan").value,
+      createdAt: new Date()
+    };
+    await addDoc(collection(db, "pengeluaran"), data);
     loadPengeluaran();
-  });
-}
+  }
 
-// Load Data
-function loadPengeluaran() {
-  db.collection("pengeluaran").orderBy("tanggal", "desc").get()
-    .then(snapshot => {
-      let total = 0;
-      let list = "";
-      snapshot.forEach(doc => {
-        const p = doc.data();
-        total += p.nominal;
-        list += `<li>${p.tanggal} - ${p.kategori}: Rp${p.nominal} (${p.catatan})</li>`;
-      });
-      document.getElementById("list-pengeluaran").innerHTML = list;
-      updateProgress(total);
+  // Load data
+  async function loadPengeluaran() {
+    const q = query(collection(db, "pengeluaran"), orderBy("tanggal", "desc"));
+    const querySnapshot = await getDocs(q);
+    let total = 0;
+    let list = "";
+    querySnapshot.forEach((doc) => {
+      const p = doc.data();
+      total += p.nominal;
+      list += `<li>${p.tanggal} - ${p.kategori}: Rp${p.nominal} (${p.catatan})</li>`;
     });
-}
+    document.getElementById("list-pengeluaran").innerHTML = list;
+    updateProgress(total);
+  }
 
-// Update Progress Bar
-const LIMIT = 3000000; // contoh limit bulanan Rp 3jt
-function updateProgress(total) {
-  const persen = Math.min((total / LIMIT) * 100, 100);
-  document.getElementById("progress").style.width = persen + "%";
-  document.getElementById("limit-info").innerText =
-    `Total bulan ini: Rp${total} / Rp${LIMIT}`;
-}
+  const LIMIT = 3000000; // Rp 3 juta
+  function updateProgress(total) {
+    const persen = Math.min((total / LIMIT) * 100, 100);
+    document.getElementById("progress").style.width = persen + "%";
+    document.getElementById("limit-info").innerText =
+      `Total bulan ini: Rp${total} / Rp${LIMIT}`;
+  }
+</script>
