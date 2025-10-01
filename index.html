@@ -288,17 +288,17 @@
 
     
     // Kirim Email
-    window.kirimEmail = async function () {
+window.kirimEmail = async function () {
   const bulanStr = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
-      const bulanFormatted = formatBulan(bulanStr);
-      const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
-      const snap = await getDocs(q);
+  const bulanFormatted = formatBulan(bulanStr);
+  const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
+  const snap = await getDocs(q);
 
   let csv = "Tanggal,Kategori,Catatan,Nominal\n";
   let htmlRows = "";
   snap.forEach((d) => {
     const p = d.data();
-    if (p.tanggal.startsWith(bulan)) {
+    if (p.tanggal.startsWith(bulanStr)) {
       csv += `${p.tanggal},${p.kategori},${p.catatan},${p.nominal}\n`;
       htmlRows += `
         <tr>
@@ -317,19 +317,18 @@
     return;
   }
 
-  // Buat Blob → Base64 untuk attachment
   const blob = new Blob([csv], { type: "text/csv" });
   const reader = new FileReader();
   reader.onload = async function () {
-    const base64data = reader.result.split(",")[1]; // ambil base64 murni
+    const base64data = reader.result.split(",")[1];
 
     const params = {
       to_email: userEmail,
-      bulan: bulan,
+      bulan: bulanFormatted,
       rows_html: htmlRows,
       attachments: [
         {
-          name: `pengeluaran-${bulan}.csv`,
+          name: `pengeluaran-${bulanStr}.csv`,
           data: base64data,
           encoding: "base64"
         }
@@ -345,6 +344,7 @@
   };
   reader.readAsDataURL(blob);
 };
+
 
 
     document.addEventListener("DOMContentLoaded", () => {
