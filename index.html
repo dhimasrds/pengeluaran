@@ -10,7 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script>
     (function(){
-      emailjs.init("lts7TMueg_oVlFBXr"); // Public Key kamu
+      emailjs.init("lts7TMueg_oVlFBXr"); // Public Key
     })();
   </script>
 </head>
@@ -53,7 +53,7 @@
     <!-- Limit Bulanan -->
     <div class="bg-white shadow rounded p-4 mb-6">
       <h2 class="font-semibold mb-2">Atur Limit Bulanan</h2>
-      <div class="flex gap-2">
+      <div class="flex gap-2 flex-wrap">
         <input type="month" id="bulan" class="border p-2 rounded"/>
         <input type="number" id="limit" placeholder="Limit Bulanan Rp" class="border p-2 rounded"/>
         <button onclick="simpanLimit()" class="bg-blue-600 text-white px-4 py-2 rounded">Simpan</button>
@@ -121,6 +121,12 @@
     const db = getFirestore(app);
     let pengeluaranEditId = null;
 
+    function formatBulan(bulanStr) {
+      const [year, month] = bulanStr.split("-");
+      const date = new Date(year, month - 1);
+      return date.toLocaleString("id-ID", { month: "long", year: "numeric" });
+    }
+
     // LOGIN
     window.login = async function () {
       const email = document.getElementById("email").value;
@@ -142,7 +148,6 @@
       }
     };
 
-    // LOGOUT
     window.logout = async function () {
       await signOut(auth);
       document.getElementById("login-section").style.display = "block";
@@ -167,7 +172,7 @@
       return 0;
     }
 
-    // SIMPAN / UPDATE PENGELUARAN
+    // SIMPAN / UPDATE
     window.simpanPengeluaran = async function () {
       const tanggal = document.getElementById("tanggal").value;
       const kategori = document.getElementById("kategori").value;
@@ -199,7 +204,6 @@
       loadPengeluaran();
     };
 
-    // EDIT
     window.editPengeluaran = function(id, tanggal, kategori, catatan, nominal) {
       document.getElementById("tanggal").value = tanggal;
       document.getElementById("kategori").value = kategori;
@@ -209,7 +213,6 @@
       document.getElementById("btnSimpan").innerText = "Update";
     };
 
-    // RINGKASAN
     async function loadRingkasan() {
       const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
       document.getElementById("bulan").value = bulan;
@@ -232,7 +235,6 @@
       document.getElementById("utilisasi").innerText = util + "%";
     }
 
-    // RIWAYAT
     async function loadPengeluaran() {
       const bulan = document.getElementById("filterBulan").value || new Date().toISOString().slice(0, 7);
       const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
@@ -257,7 +259,6 @@
         rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
     }
 
-    // HAPUS
     window.hapusPengeluaran = async function(id) {
       if (confirm("Yakin ingin menghapus pengeluaran ini?")) {
         await deleteDoc(doc(db, "pengeluaran", id));
@@ -266,7 +267,6 @@
       }
     };
 
-    // EKSPOR CSV
     window.eksporCSV = async function () {
       const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
       const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
@@ -286,42 +286,65 @@
       a.click();
     };
 
-    // KIRIM EMAIL
+    // Kirim Email
     window.kirimEmail = async function () {
-      const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
+      const bulanStr = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
+      const bulanFormatted = formatBulan(bulanStr);
       const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
       const snap = await getDocs(q);
 
-      let csvRows = [];
+      let csv = "Tanggal,Kategori,Catatan,Nominal\n";
+      let htmlRows = "";
       snap.forEach((d) => {
         const p = d.data();
-        if (p.tanggal.startsWith(bulan)) {
-          csvRows.push(`${p.tanggal},${p.kategori},${p.catatan},${p.nominal}`);
+        if (p.tanggal.startsWith(bulanStr)) {
+          csv += `${p.tanggal},${p.kategori},${p.catatan},${p.nominal}\n`;
+          htmlRows += `
+            <tr>
+              <td style="border:1px solid #ccc;padding:8px;">${p.tanggal}</td>
+              <td style="border:1px solid #ccc;padding:8px;">${p.kategori}</td>
+              <td style="border:1px solid #ccc;padding:8px;">${p.catatan || "-"}</td>
+              <td style="border:1px solid #ccc;padding:8px;">Rp${p.nominal.toLocaleString()}</td>
+            </tr>`;
         }
       });
 
       const userEmail = auth.currentUser.email;
 
-      if (csvRows.length === 0) {
+      if (csv === "Tanggal,Kategori,Catatan,Nominal\n") {
         alert("Tidak ada data pengeluaran bulan ini.");
         return;
       }
 
-      const params = {
-        to_email: userEmail,
-        bulan: bulan,
-        message: csvRows.join("\n"),
-      };
+      // Buat Blob → Base64
+      const blob = new Blob([csv], { type: "text/csv" });
+      const reader = new FileReader();
+      reader.onload = async function () {
+        const base64data = reader.result.split(",")[1];
 
-      emailjs.send("gmailKU", "template_n1lowek", params)
-        .then(() => {
-          alert("Laporan berhasil dikirim ke email Anda.");
-        }, (error) => {
-          alert("Gagal mengirim email: " + JSON.stringify(error));
-        });
+        const params = {
+          to_email: userEmail,
+          bulan: bulanFormatted,
+          rows_html: htmlRows,
+          attachments: [
+            {
+              name: `pengeluaran-${bulanStr}.csv`,
+              data: base64data,
+              encoding: "base64"
+            }
+          ]
+        };
+
+        emailjs.send("gmailKU", "template_n1lowek", params)
+          .then(() => {
+            alert("Laporan berhasil dikirim ke email Anda.");
+          }, (error) => {
+            alert("Gagal mengirim email: " + JSON.stringify(error));
+          });
+      };
+      reader.readAsDataURL(blob);
     };
 
-    // SINKRON FILTER BULAN
     document.addEventListener("DOMContentLoaded", () => {
       const bulanInput = document.getElementById("bulan");
       const filterInput = document.getElementById("filterBulan");
