@@ -1,29 +1,36 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rekap Pengeluaran Bulanan</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script>
+    (function(){
+      emailjs.init("lts7TMueg_oVlFBXr"); // Public Key kamu
+    })();
+  </script>
 </head>
 <body class="bg-gray-50 min-h-screen p-6">
 
-  <!-- Login Section -->
+  <!-- Login -->
   <div id="login-section" class="max-w-md mx-auto bg-white shadow p-6 rounded">
     <h2 class="text-xl font-bold mb-4">Login</h2>
-    <input type="email" id="email" placeholder="Email" class="border p-2 mb-2 w-full rounded">
-    <input type="password" id="password" placeholder="Password" class="border p-2 mb-4 w-full rounded">
+    <input type="email" id="email" placeholder="Email" class="border p-2 mb-2 w-full rounded"/>
+    <input type="password" id="password" placeholder="Password" class="border p-2 mb-4 w-full rounded"/>
     <button onclick="login()" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Login</button>
   </div>
 
   <!-- Dashboard -->
-  <div id="dashboard" style="display:none;" class="max-w-4xl mx-auto">
-    <!-- Header -->
+  <div id="dashboard" style="display:none;" class="max-w-5xl mx-auto">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">Rekap Pengeluaran Bulanan</h1>
       <div>
         <span id="userEmail" class="mr-4 text-gray-700"></span>
-        <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
+        <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded">Keluar</button>
       </div>
     </div>
 
@@ -43,32 +50,36 @@
       </div>
     </div>
 
-    <!-- Atur Limit -->
+    <!-- Limit Bulanan -->
     <div class="bg-white shadow rounded p-4 mb-6">
       <h2 class="font-semibold mb-2">Atur Limit Bulanan</h2>
       <div class="flex gap-2">
-        <input type="month" id="bulan" class="border p-2 rounded">
-        <input type="number" id="limit" placeholder="Limit Bulanan Rp" class="border p-2 rounded">
+        <input type="month" id="bulan" class="border p-2 rounded"/>
+        <input type="number" id="limit" placeholder="Limit Bulanan Rp" class="border p-2 rounded"/>
         <button onclick="simpanLimit()" class="bg-blue-600 text-white px-4 py-2 rounded">Simpan</button>
-        <button onclick="eksporCSV()" class="bg-gray-400 text-white px-4 py-2 rounded">Ekspor</button>
+        <button onclick="eksporCSV()" class="bg-gray-500 text-white px-4 py-2 rounded">Ekspor</button>
+        <button onclick="kirimEmail()" class="bg-green-600 text-white px-4 py-2 rounded">Kirim ke Email</button>
       </div>
     </div>
 
-    <!-- Tambah Pengeluaran -->
+    <!-- Tambah/Edit Pengeluaran -->
     <div class="bg-white shadow rounded p-4 mb-6">
-      <h2 class="font-semibold mb-2">Tambah Pengeluaran</h2>
+      <h2 class="font-semibold mb-2">Form Pengeluaran</h2>
       <div class="grid grid-cols-4 gap-2 mb-2">
-        <input type="date" id="tanggal" class="border p-2 rounded">
-        <input type="text" id="kategori" placeholder="Kategori" class="border p-2 rounded">
-        <input type="text" id="catatan" placeholder="Catatan" class="border p-2 rounded">
-        <input type="number" id="nominal" placeholder="Jumlah Rp" class="border p-2 rounded">
+        <input type="date" id="tanggal" class="border p-2 rounded"/>
+        <input type="text" id="kategori" placeholder="Kategori" class="border p-2 rounded"/>
+        <input type="text" id="catatan" placeholder="Catatan" class="border p-2 rounded"/>
+        <input type="number" id="nominal" placeholder="Jumlah Rp" class="border p-2 rounded"/>
       </div>
-      <button onclick="tambahPengeluaran()" class="bg-blue-600 text-white px-4 py-2 rounded">Tambah</button>
+      <button id="btnSimpan" onclick="simpanPengeluaran()" class="bg-blue-600 text-white px-4 py-2 rounded">Tambah</button>
     </div>
 
-    <!-- Tabel -->
+    <!-- Riwayat Pengeluaran -->
     <div class="bg-white shadow rounded p-4">
-      <h2 class="font-semibold mb-2">Riwayat Pengeluaran</h2>
+      <div class="mb-4">
+        <label for="filterBulan" class="mr-2 font-medium">Pilih Bulan:</label>
+        <input type="month" id="filterBulan" class="border p-2 rounded"/>
+      </div>
       <table class="w-full border-collapse">
         <thead>
           <tr class="bg-gray-100">
@@ -86,13 +97,15 @@
     </div>
   </div>
 
-  <!-- Firebase Script langsung di index -->
+  <!-- Firebase Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy, where, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import {
+      getFirestore, collection, addDoc, getDocs,
+      query, where, doc, setDoc, deleteDoc
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Config Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyDlTuRouYleRsIqY1e0dVs0DdUn9vpGsaw",
       authDomain: "pengeluaran-83a36.firebaseapp.com",
@@ -106,9 +119,10 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    let pengeluaranEditId = null;
 
-    // ===== Login =====
-    window.login = async function() {
+    // LOGIN
+    window.login = async function () {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       try {
@@ -116,122 +130,214 @@
         document.getElementById("login-section").style.display = "none";
         document.getElementById("dashboard").style.display = "block";
         document.getElementById("userEmail").innerText = auth.currentUser.email;
+
+        const bulanNow = new Date().toISOString().slice(0, 7);
+        document.getElementById("bulan").value = bulanNow;
+        document.getElementById("filterBulan").value = bulanNow;
+
         loadRingkasan();
         loadPengeluaran();
       } catch (err) {
         alert("Login gagal: " + err.message);
       }
-    }
+    };
 
-    // ===== Logout =====
-    window.logout = async function() {
+    // LOGOUT
+    window.logout = async function () {
       await signOut(auth);
       document.getElementById("login-section").style.display = "block";
       document.getElementById("dashboard").style.display = "none";
-    }
+    };
 
-    // ===== Simpan Limit =====
-    window.simpanLimit = async function() {
+    // SIMPAN LIMIT
+    window.simpanLimit = async function () {
       const bulan = document.getElementById("bulan").value;
       const limit = parseInt(document.getElementById("limit").value);
-      if(!bulan || !limit) return alert("Isi bulan dan limit!");
+      if (!bulan || !limit) return alert("Isi bulan dan limit!");
       const uid = auth.currentUser.uid;
       await setDoc(doc(db, "limits", uid + "_" + bulan), { uid, bulan, limit });
       loadRingkasan();
-    }
+    };
 
     async function getLimit(bulan) {
       const uid = auth.currentUser.uid;
       const q = query(collection(db, "limits"), where("uid", "==", uid), where("bulan", "==", bulan));
       const snap = await getDocs(q);
-      if(!snap.empty) return snap.docs[0].data().limit;
+      if (!snap.empty) return snap.docs[0].data().limit;
       return 0;
     }
 
-    // ===== Tambah Pengeluaran =====
-    window.tambahPengeluaran = async function() {
+    // SIMPAN / UPDATE PENGELUARAN
+    window.simpanPengeluaran = async function () {
       const tanggal = document.getElementById("tanggal").value;
       const kategori = document.getElementById("kategori").value;
       const catatan = document.getElementById("catatan").value;
       const nominal = parseInt(document.getElementById("nominal").value);
-      if(!tanggal || !nominal) return alert("Tanggal & nominal wajib diisi");
+      if (!tanggal || !nominal) return alert("Tanggal & nominal wajib diisi");
 
-      await addDoc(collection(db, "pengeluaran"), {
-        uid: auth.currentUser.uid, tanggal, kategori, catatan, nominal, createdAt: new Date()
-      });
+      const data = {
+        uid: auth.currentUser.uid,
+        tanggal,
+        kategori,
+        catatan,
+        nominal,
+        createdAt: new Date(),
+      };
+
+      if (pengeluaranEditId) {
+        await setDoc(doc(db, "pengeluaran", pengeluaranEditId), data);
+        pengeluaranEditId = null;
+        document.getElementById("btnSimpan").innerText = "Tambah";
+      } else {
+        await addDoc(collection(db, "pengeluaran"), data);
+      }
+
+      document.getElementById("catatan").value = "";
+      document.getElementById("nominal").value = "";
+
       loadRingkasan();
       loadPengeluaran();
-    }
+    };
 
-    // ===== Load Ringkasan =====
+    // EDIT
+    window.editPengeluaran = function(id, tanggal, kategori, catatan, nominal) {
+      document.getElementById("tanggal").value = tanggal;
+      document.getElementById("kategori").value = kategori;
+      document.getElementById("catatan").value = catatan;
+      document.getElementById("nominal").value = nominal;
+      pengeluaranEditId = id;
+      document.getElementById("btnSimpan").innerText = "Update";
+    };
+
+    // RINGKASAN
     async function loadRingkasan() {
-      const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0,7);
+      const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
       document.getElementById("bulan").value = bulan;
+
       const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
       const snap = await getDocs(q);
+
       let total = 0;
-      snap.forEach(d => { if(d.data().tanggal.startsWith(bulan)) total += d.data().nominal });
+      snap.forEach((d) => {
+        const p = d.data();
+        if (p.tanggal.startsWith(bulan)) total += p.nominal;
+      });
+
       const limit = await getLimit(bulan);
-      const sisa = limit ? (limit - total) : "-";
-      const util = limit ? ((total/limit)*100).toFixed(1) : "0";
+      const sisa = limit ? limit - total : "-";
+      const util = limit ? ((total / limit) * 100).toFixed(1) : "0";
+
       document.getElementById("totalPengeluaran").innerText = "Rp" + total.toLocaleString();
       document.getElementById("sisaLimit").innerText = limit ? "Rp" + sisa.toLocaleString() : "-";
       document.getElementById("utilisasi").innerText = util + "%";
     }
 
-    // ===== Load Tabel =====
-   async function loadPengeluaran() {
-  const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0,7);
-  let q;
-  try {
-    q = query(
-      collection(db, "pengeluaran"),
-      where("uid", "==", auth.currentUser.uid),
-      orderBy("tanggal", "desc")
-    );
-  } catch (e) {
-    // fallback tanpa orderBy
-    q = query(
-      collection(db, "pengeluaran"),
-      where("uid", "==", auth.currentUser.uid)
-    );
-  }
-
-  const snap = await getDocs(q);
-  let rows = "";
-  snap.forEach(d => {
-    const p = d.data();
-    if (p.tanggal.startsWith(bulan)) {
-      rows += `<tr>
-        <td class="border p-2">${p.tanggal}</td>
-        <td class="border p-2">${p.kategori}</td>
-        <td class="border p-2">${p.catatan || "-"}</td>
-        <td class="border p-2">Rp${p.nominal.toLocaleString()}</td>
-        <td class="border p-2 text-red-500 cursor-pointer">Hapus</td>
-      </tr>`;
+    // RIWAYAT
+    async function loadPengeluaran() {
+      const bulan = document.getElementById("filterBulan").value || new Date().toISOString().slice(0, 7);
+      const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
+      const snap = await getDocs(q);
+      let rows = "";
+      snap.forEach((d) => {
+        const p = d.data();
+        if (p.tanggal.startsWith(bulan)) {
+          rows += `<tr>
+            <td class="border p-2">${p.tanggal}</td>
+            <td class="border p-2">${p.kategori}</td>
+            <td class="border p-2">${p.catatan || "-"}</td>
+            <td class="border p-2">Rp${p.nominal.toLocaleString()}</td>
+            <td class="border p-2 space-x-2">
+              <span class="text-blue-500 cursor-pointer" onclick="editPengeluaran('${d.id}', '${p.tanggal}', '${p.kategori}', '${p.catatan}', ${p.nominal})">Edit</span>
+              <span class="text-red-500 cursor-pointer" onclick="hapusPengeluaran('${d.id}')">Hapus</span>
+            </td>
+          </tr>`;
+        }
+      });
+      document.getElementById("tabelPengeluaran").innerHTML =
+        rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
     }
-  });
 
-  document.getElementById("tabelPengeluaran").innerHTML =
-    rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
-}
+    // HAPUS
+    window.hapusPengeluaran = async function(id) {
+      if (confirm("Yakin ingin menghapus pengeluaran ini?")) {
+        await deleteDoc(doc(db, "pengeluaran", id));
+        loadRingkasan();
+        loadPengeluaran();
+      }
+    };
 
-
-    // ===== Ekspor CSV =====
-    window.eksporCSV = async function() {
-      const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0,7);
+    // EKSPOR CSV
+    window.eksporCSV = async function () {
+      const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
       const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
       const snap = await getDocs(q);
       let csv = "Tanggal,Kategori,Catatan,Nominal\n";
-      snap.forEach(d => {
+      snap.forEach((d) => {
         const p = d.data();
-        if(p.tanggal.startsWith(bulan)) csv += `${p.tanggal},${p.kategori},${p.catatan},${p.nominal}\n`;
+        if (p.tanggal.startsWith(bulan)) {
+          csv += `${p.tanggal},${p.kategori},${p.catatan},${p.nominal}\n`;
+        }
       });
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url; a.download = `pengeluaran-${bulan}.csv`; a.click();
-    }
+      a.href = url;
+      a.download = `pengeluaran-${bulan}.csv`;
+      a.click();
+    };
+
+    // KIRIM EMAIL
+    window.kirimEmail = async function () {
+      const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
+      const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
+      const snap = await getDocs(q);
+
+      let csvRows = [];
+      snap.forEach((d) => {
+        const p = d.data();
+        if (p.tanggal.startsWith(bulan)) {
+          csvRows.push(`${p.tanggal},${p.kategori},${p.catatan},${p.nominal}`);
+        }
+      });
+
+      const userEmail = auth.currentUser.email;
+
+      if (csvRows.length === 0) {
+        alert("Tidak ada data pengeluaran bulan ini.");
+        return;
+      }
+
+      const params = {
+        to_email: userEmail,
+        bulan: bulan,
+        message: csvRows.join("\n"),
+      };
+
+      emailjs.send("gmailKU", "template_n1lowek", params)
+        .then(() => {
+          alert("Laporan berhasil dikirim ke email Anda.");
+        }, (error) => {
+          alert("Gagal mengirim email: " + JSON.stringify(error));
+        });
+    };
+
+    // SINKRON FILTER BULAN
+    document.addEventListener("DOMContentLoaded", () => {
+      const bulanInput = document.getElementById("bulan");
+      const filterInput = document.getElementById("filterBulan");
+
+      bulanInput.addEventListener("change", () => {
+        filterInput.value = bulanInput.value;
+        loadRingkasan();
+        loadPengeluaran();
+      });
+
+      filterInput.addEventListener("change", () => {
+        bulanInput.value = filterInput.value;
+        loadRingkasan();
+        loadPengeluaran();
+      });
+    });
   </script>
 </body>
 </html>
