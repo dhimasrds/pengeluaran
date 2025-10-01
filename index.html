@@ -317,32 +317,33 @@ window.kirimEmail = async function () {
     return;
   }
 
-  const blob = new Blob([csv], { type: "text/csv" });
-  const reader = new FileReader();
-  reader.onload = async function () {
-    const base64data = reader.result.split(",")[1];
+ const blob = new Blob([csv], { type: "text/csv" });
+const reader = new FileReader();
+reader.onload = async function () {
+  // ambil hanya bagian base64 (setelah koma)
+  const base64data = reader.result.split(",")[1];
 
-    const params = {
-      to_email: userEmail,
-      bulan: bulanFormatted,
-      rows_html: htmlRows,
-      attachments: [
-        {
-          name: `pengeluaran-${bulanStr}.csv`,
-          data: base64data,
-          encoding: "base64"
-        }
-      ]
-    };
-
-    emailjs.send("gmailKU", "template_n1lowek", params)
-      .then(() => {
-        alert("Laporan berhasil dikirim ke email Anda.");
-      }, (error) => {
-        alert("Gagal mengirim email: " + JSON.stringify(error));
-      });
+  const params = {
+    to_email: userEmail,
+    bulan: bulanFormatted,
+    rows_html: htmlRows,
+    attachments: [
+      {
+        name: `pengeluaran-${bulanStr}.csv`, // nama file
+        data: base64data, // data base64
+        encoding: "base64"
+      }
+    ]
   };
-  reader.readAsDataURL(blob);
+
+  emailjs.send("gmailKU", "template_n1lowek", params)
+    .then(() => {
+      alert("Laporan berhasil dikirim ke email Anda dengan lampiran CSV.");
+    }, (error) => {
+      alert("Gagal mengirim email: " + JSON.stringify(error));
+    });
+};
+reader.readAsDataURL(blob);
 };
 
 
