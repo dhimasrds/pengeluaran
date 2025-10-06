@@ -62,7 +62,7 @@
       </div>
     </div>
 
-    <!-- Tambah/Edit Pengeluaran -->
+    <!-- Form Pengeluaran -->
     <div class="bg-white shadow rounded p-4 mb-6">
       <h2 class="font-semibold mb-2">Form Pengeluaran</h2>
       <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-2">
@@ -86,7 +86,7 @@
           <input type="month" id="filterBulan" class="border p-2 rounded"/>
         </div>
         <div>
-          <select id="sortBy" onchange="loadPengeluaran()" class="border p-2 rounded text-sm">
+          <select id="sortBy" class="border p-2 rounded text-sm">
             <option value="date-desc" selected>Tanggal (Terbaru)</option>
             <option value="date-asc">Tanggal (Terlama)</option>
             <option value="amount-desc">Nominal (Terbesar)</option>
@@ -95,6 +95,7 @@
           </select>
         </div>
       </div>
+
       <div class="overflow-x-auto">
         <table class="w-full border-collapse text-sm sm:text-base">
           <thead>
@@ -114,7 +115,7 @@
     </div>
   </div>
 
-  <!-- Firebase + Script -->
+  <!-- Firebase Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -141,6 +142,7 @@
       return date.toLocaleString("id-ID", { month: "long", year: "numeric" });
     }
 
+    // === LOGIN ===
     window.login = async function () {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
@@ -168,15 +170,7 @@
       document.getElementById("dashboard").style.display = "none";
     };
 
-    window.simpanLimit = async function () {
-      const bulan = document.getElementById("bulan").value;
-      const limit = parseInt(document.getElementById("limit").value);
-      if (!bulan || !limit) return alert("Isi bulan dan limit!");
-      const uid = auth.currentUser.uid;
-      await setDoc(doc(db, "limits", uid + "_" + bulan), { uid, bulan, limit });
-      loadRingkasan();
-    };
-
+    // === RINGKASAN ===
     async function getLimit(bulan) {
       const uid = auth.currentUser.uid;
       const q = query(collection(db, "limits"), where("uid", "==", uid), where("bulan", "==", bulan));
@@ -185,55 +179,14 @@
       return 0;
     }
 
-    window.simpanPengeluaran = async function () {
-      const tanggal = document.getElementById("tanggal").value;
-      const kategori = document.getElementById("kategori").value;
-      const catatan = document.getElementById("catatan").value;
-      const nominal = parseInt(document.getElementById("nominal").value);
-      if (!tanggal || !nominal) return alert("Tanggal & nominal wajib diisi");
-
-      const data = {
-        uid: auth.currentUser.uid,
-        tanggal,
-        kategori,
-        catatan,
-        nominal,
-        createdAt: new Date(),
-      };
-
-      if (pengeluaranEditId) {
-        await setDoc(doc(db, "pengeluaran", pengeluaranEditId), data);
-        pengeluaranEditId = null;
-        document.getElementById("btnSimpan").innerText = "Tambah";
-      } else {
-        await addDoc(collection(db, "pengeluaran"), data);
-      }
-
-      document.getElementById("catatan").value = "";
-      document.getElementById("nominal").value = "";
-
-      loadRingkasan();
-      loadPengeluaran();
-    };
-
-    window.editPengeluaran = function(id, tanggal, kategori, catatan, nominal) {
-      document.getElementById("tanggal").value = tanggal;
-      document.getElementById("kategori").value = kategori;
-      document.getElementById("catatan").value = catatan;
-      document.getElementById("nominal").value = nominal;
-      pengeluaranEditId = id;
-      document.getElementById("btnSimpan").innerText = "Update";
-    };
-
     async function loadRingkasan() {
       const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
       document.getElementById("bulan").value = bulan;
-
-      const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
+            const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
       const snap = await getDocs(q);
 
       let total = 0;
-      snap.forEach((d) => {
+      snap.forEach(d => {
         const p = d.data();
         if (p.tanggal.startsWith(bulan)) total += p.nominal;
       });
@@ -247,46 +200,42 @@
       document.getElementById("utilisasi").innerText = util + "%";
     }
 
-    async function loadPengeluaran() {
-      const bulan = document.getElementById("filterBulan").value || new Date().toISOString().slice(0, 7);
-      const sortBy = document.getElementById("sortBy").value || "date-desc";
-      const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
-      const snap = await getDocs(q);
+    // === PENGELUARAN ===
+    window.simpanPengeluaran = async function () {
+      const tanggal = document.getElementById("tanggal").value;
+      const kategori = document.getElementById("kategori").value;
+      const catatan = document.getElementById("catatan").value;
+      const nominal = parseInt(document.getElementById("nominal").value);
+      if (!tanggal || !nominal) return alert("Tanggal & nominal wajib diisi");
 
-      let data = [];
-      snap.forEach((d) => {
-        const p = d.data();
-        p.id = d.id;
-        if (p.tanggal.startsWith(bulan)) data.push(p);
-      });
+      const data = {
+        uid: auth.currentUser.uid,
+        tanggal, kategori, catatan, nominal,
+        createdAt: new Date()
+      };
 
-      data.sort((a,b)=>{
-        switch(sortBy){
-          case "date-asc": return a.tanggal.localeCompare(b.tanggal);
-          case "date-desc": return b.tanggal.localeCompare(a.tanggal);
-          case "amount-asc": return a.nominal - b.nominal;
-          case "amount-desc": return b.nominal - a.nominal;
-          case "category-asc": return (a.kategori||"").localeCompare(b.kategori||"");
-          default: return 0;
-        }
-      });
+      if (pengeluaranEditId) {
+        await setDoc(doc(db, "pengeluaran", pengeluaranEditId), data);
+        pengeluaranEditId = null;
+        document.getElementById("btnSimpan").innerText = "Tambah";
+      } else {
+        await addDoc(collection(db, "pengeluaran"), data);
+      }
 
-      let rows = "";
-      data.forEach(p=>{
-        rows += `<tr>
-          <td class="border p-2">${p.tanggal}</td>
-          <td class="border p-2">${p.kategori}</td>
-          <td class="border p-2">${p.catatan||"-"}</td>
-          <td class="border p-2">Rp${p.nominal.toLocaleString()}</td>
-          <td class="border p-2 space-x-2">
-            <span class="text-blue-500 cursor-pointer" onclick="editPengeluaran('${p.id}','${p.tanggal}','${p.kategori}','${p.catatan}',${p.nominal})">Edit</span>
-            <span class="text-red-500 cursor-pointer" onclick="hapusPengeluaran('${p.id}')">Hapus</span>
-          </td>
-        </tr>`;
-      });
+      document.getElementById("catatan").value = "";
+      document.getElementById("nominal").value = "";
+      loadRingkasan();
+      loadPengeluaran();
+    };
 
-      document.getElementById("tabelPengeluaran").innerHTML = rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
-    }
+    window.editPengeluaran = function(id, tanggal, kategori, catatan, nominal) {
+      document.getElementById("tanggal").value = tanggal;
+      document.getElementById("kategori").value = kategori;
+      document.getElementById("catatan").value = catatan;
+      document.getElementById("nominal").value = nominal;
+      pengeluaranEditId = id;
+      document.getElementById("btnSimpan").innerText = "Update";
+    };
 
     window.hapusPengeluaran = async function(id) {
       if (confirm("Yakin ingin menghapus pengeluaran ini?")) {
@@ -296,16 +245,60 @@
       }
     };
 
+    async function loadPengeluaran() {
+      const bulan = document.getElementById("filterBulan").value || new Date().toISOString().slice(0, 7);
+      const sortBy = document.getElementById("sortBy").value || "date-desc";
+
+      const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
+      const snap = await getDocs(q);
+
+      let data = [];
+      snap.forEach(d => {
+        const p = d.data();
+        p.id = d.id;
+        if (p.tanggal.startsWith(bulan)) data.push(p);
+      });
+
+      // Sorting
+      data.sort((a, b) => {
+        switch (sortBy) {
+          case "date-asc": return a.tanggal.localeCompare(b.tanggal);
+          case "date-desc": return b.tanggal.localeCompare(a.tanggal);
+          case "amount-asc": return a.nominal - b.nominal;
+          case "amount-desc": return b.nominal - a.nominal;
+          case "category-asc": return (a.kategori || "").localeCompare(b.kategori || "");
+          default: return 0;
+        }
+      });
+
+      let rows = "";
+      data.forEach(p => {
+        rows += `
+          <tr>
+            <td class="border p-2">${p.tanggal}</td>
+            <td class="border p-2">${p.kategori}</td>
+            <td class="border p-2">${p.catatan || "-"}</td>
+            <td class="border p-2">Rp${p.nominal.toLocaleString()}</td>
+            <td class="border p-2 space-x-2">
+              <span class="text-blue-500 cursor-pointer" onclick="editPengeluaran('${p.id}','${p.tanggal}','${p.kategori}','${p.catatan}',${p.nominal})">Edit</span>
+              <span class="text-red-500 cursor-pointer" onclick="hapusPengeluaran('${p.id}')">Hapus</span>
+            </td>
+          </tr>`;
+      });
+
+      document.getElementById("tabelPengeluaran").innerHTML =
+        rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
+    }
+
+    // === EKSPOR CSV & EMAIL ===
     window.eksporCSV = async function () {
       const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
       const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
       const snap = await getDocs(q);
       let csv = "Tanggal,Kategori,Catatan,Nominal\n";
-      snap.forEach((d) => {
+      snap.forEach(d => {
         const p = d.data();
-        if (p.tanggal.startsWith(bulan)) {
-          csv += `${p.tanggal},${p.kategori},${p.catatan},${p.nominal}\n`;
-        }
+        if (p.tanggal.startsWith(bulan)) csv += `${p.tanggal},${p.kategori},${p.catatan},${p.nominal}\n`;
       });
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
@@ -323,7 +316,7 @@
 
       let csv = "Tanggal,Kategori,Catatan,Nominal\n";
       let htmlRows = "";
-      snap.forEach((d) => {
+      snap.forEach(d => {
         const p = d.data();
         if (p.tanggal.startsWith(bulanStr)) {
           csv += `${p.tanggal},${p.kategori},${p.catatan},${p.nominal}\n`;
@@ -353,17 +346,16 @@
       };
 
       emailjs.send("gmailKU", "template_n1lowek", params)
-        .then(() => {
-          alert("Laporan berhasil dikirim ke email Anda (dengan link CSV).");
-        }, (error) => {
-          alert("Gagal mengirim email: " + JSON.stringify(error));
-        });
+        .then(() => alert("Laporan berhasil dikirim ke email Anda."),
+          (error) => alert("Gagal mengirim email: " + JSON.stringify(error)));
     };
 
+    // === SYNC BULAN DAN FILTER ===
     document.addEventListener("DOMContentLoaded", () => {
       const bulanInput = document.getElementById("bulan");
       const filterInput = document.getElementById("filterBulan");
       const tanggalInput = document.getElementById("tanggal");
+      const sortSelect = document.getElementById("sortBy");
 
       tanggalInput.value = new Date().toISOString().split("T")[0];
 
@@ -378,7 +370,10 @@
         loadRingkasan();
         loadPengeluaran();
       });
+
+      sortSelect.addEventListener("change", loadPengeluaran);
     });
   </script>
 </body>
 </html>
+
