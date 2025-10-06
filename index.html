@@ -10,7 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script>
     (function(){
-      emailjs.init("lts7TMueg_oVlFBXr"); // Public Key kamu
+      emailjs.init("lts7TMueg_oVlFBXr");
     })();
   </script>
 </head>
@@ -80,9 +80,20 @@
 
     <!-- Riwayat Pengeluaran -->
     <div class="bg-white shadow rounded p-4">
-      <div class="mb-4 flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-        <label for="filterBulan" class="font-medium">Pilih Bulan:</label>
-        <input type="month" id="filterBulan" class="border p-2 rounded"/>
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+        <div class="flex items-center gap-2">
+          <label for="filterBulan" class="font-medium">Pilih Bulan:</label>
+          <input type="month" id="filterBulan" class="border p-2 rounded"/>
+        </div>
+        <div>
+          <select id="sortBy" onchange="loadPengeluaran()" class="border p-2 rounded text-sm">
+            <option value="date-desc" selected>Tanggal (Terbaru)</option>
+            <option value="date-asc">Tanggal (Terlama)</option>
+            <option value="amount-desc">Nominal (Terbesar)</option>
+            <option value="amount-asc">Nominal (Terkecil)</option>
+            <option value="category-asc">Kategori (A-Z)</option>
+          </select>
+        </div>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full border-collapse text-sm sm:text-base">
@@ -130,7 +141,6 @@
       return date.toLocaleString("id-ID", { month: "long", year: "numeric" });
     }
 
-    // Login
     window.login = async function () {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
@@ -143,8 +153,6 @@
         const bulanNow = new Date().toISOString().slice(0, 7);
         document.getElementById("bulan").value = bulanNow;
         document.getElementById("filterBulan").value = bulanNow;
-
-        // set default tanggal hari ini
         document.getElementById("tanggal").value = new Date().toISOString().split("T")[0];
 
         loadRingkasan();
@@ -160,7 +168,6 @@
       document.getElementById("dashboard").style.display = "none";
     };
 
-    // Simpan Limit
     window.simpanLimit = async function () {
       const bulan = document.getElementById("bulan").value;
       const limit = parseInt(document.getElementById("limit").value);
@@ -178,7 +185,6 @@
       return 0;
     }
 
-    // Simpan / Update
     window.simpanPengeluaran = async function () {
       const tanggal = document.getElementById("tanggal").value;
       const kategori = document.getElementById("kategori").value;
@@ -243,26 +249,43 @@
 
     async function loadPengeluaran() {
       const bulan = document.getElementById("filterBulan").value || new Date().toISOString().slice(0, 7);
+      const sortBy = document.getElementById("sortBy").value || "date-desc";
       const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
       const snap = await getDocs(q);
-      let rows = "";
+
+      let data = [];
       snap.forEach((d) => {
         const p = d.data();
-        if (p.tanggal.startsWith(bulan)) {
-          rows += `<tr>
-            <td class="border p-2">${p.tanggal}</td>
-            <td class="border p-2">${p.kategori}</td>
-            <td class="border p-2">${p.catatan || "-"}</td>
-            <td class="border p-2">Rp${p.nominal.toLocaleString()}</td>
-            <td class="border p-2 space-x-2">
-              <span class="text-blue-500 cursor-pointer" onclick="editPengeluaran('${d.id}', '${p.tanggal}', '${p.kategori}', '${p.catatan}', ${p.nominal})">Edit</span>
-              <span class="text-red-500 cursor-pointer" onclick="hapusPengeluaran('${d.id}')">Hapus</span>
-            </td>
-          </tr>`;
+        p.id = d.id;
+        if (p.tanggal.startsWith(bulan)) data.push(p);
+      });
+
+      data.sort((a,b)=>{
+        switch(sortBy){
+          case "date-asc": return a.tanggal.localeCompare(b.tanggal);
+          case "date-desc": return b.tanggal.localeCompare(a.tanggal);
+          case "amount-asc": return a.nominal - b.nominal;
+          case "amount-desc": return b.nominal - a.nominal;
+          case "category-asc": return (a.kategori||"").localeCompare(b.kategori||"");
+          default: return 0;
         }
       });
-      document.getElementById("tabelPengeluaran").innerHTML =
-        rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
+
+      let rows = "";
+      data.forEach(p=>{
+        rows += `<tr>
+          <td class="border p-2">${p.tanggal}</td>
+          <td class="border p-2">${p.kategori}</td>
+          <td class="border p-2">${p.catatan||"-"}</td>
+          <td class="border p-2">Rp${p.nominal.toLocaleString()}</td>
+          <td class="border p-2 space-x-2">
+            <span class="text-blue-500 cursor-pointer" onclick="editPengeluaran('${p.id}','${p.tanggal}','${p.kategori}','${p.catatan}',${p.nominal})">Edit</span>
+            <span class="text-red-500 cursor-pointer" onclick="hapusPengeluaran('${p.id}')">Hapus</span>
+          </td>
+        </tr>`;
+      });
+
+      document.getElementById("tabelPengeluaran").innerHTML = rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
     }
 
     window.hapusPengeluaran = async function(id) {
@@ -273,7 +296,6 @@
       }
     };
 
-    // Ekspor CSV
     window.eksporCSV = async function () {
       const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
       const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
@@ -293,7 +315,6 @@
       a.click();
     };
 
-    // Kirim Email (pakai link CSV)
     window.kirimEmail = async function () {
       const bulanStr = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
       const bulanFormatted = formatBulan(bulanStr);
@@ -339,13 +360,11 @@
         });
     };
 
-    // Sinkron bulan + default tanggal
     document.addEventListener("DOMContentLoaded", () => {
       const bulanInput = document.getElementById("bulan");
       const filterInput = document.getElementById("filterBulan");
       const tanggalInput = document.getElementById("tanggal");
 
-      // default tanggal hari ini
       tanggalInput.value = new Date().toISOString().split("T")[0];
 
       bulanInput.addEventListener("change", () => {
