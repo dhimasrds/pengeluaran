@@ -56,6 +56,7 @@ export class LimitManager {
 
   calculateUtilization(totalExpenses, limit) {
     if (!limit) return 0;
-    return ((totalExpenses / limit) * 100).toFixed(1);
+    // Return a number (not string). UI handles formatting.
+    return (totalExpenses / Number(limit)) * 100;
   }
 }
