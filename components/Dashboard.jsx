@@ -118,10 +118,10 @@ export function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Header */}
       <header className="sticky top-0 z-20 bg-surface border-b border-border shadow-sm">
-        <div className="max-w-7xl mx-auto px-16 py-16 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-text-primary">
               Dashboard Pengeluaran
@@ -137,9 +137,9 @@ export function Dashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-16 py-24">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Mobile: Stack Layout */}
-        <div className="lg:hidden space-y-24">
+        <div className="lg:hidden space-y-6">
           {/* Stats */}
           <StatCards
             totalPengeluaran={totalPengeluaran}
@@ -176,9 +176,9 @@ export function Dashboard() {
         </div>
 
         {/* Desktop: 2-Column Layout */}
-        <div className="hidden lg:grid lg:grid-cols-[360px_1fr] lg:gap-24">
+        <div className="hidden lg:grid lg:grid-cols-[minmax(320px,_360px)_1fr] lg:gap-6 xl:gap-8">
           {/* Sidebar */}
-          <div className="space-y-24">
+          <div className="space-y-6">
             {/* Stats */}
             <div className="space-y-16">
               <StatCards
