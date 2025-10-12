@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<title>FinTrack - Transactions</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#20df6c",
+            "background-light": "#f6f8f7",
+            "background-dark": "#112117",
+          },
+          fontFamily: {
+            "display": ["Inter"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "1rem",
+            "xl": "1.5rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-black dark:text-white">
+<div class="flex flex-col min-h-screen">
+<header class="flex items-center justify-between px-10 py-4 border-b border-black/10 dark:border-white/10">
+<div class="flex items-center gap-3">
+<svg class="text-primary" fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M19.7781 17.0727V6.92728C19.7781 7.85401 18.4386 8.67183 16.3963 9.15946C15.1457 9.45801 13.6315 9.63273 12 9.63273C10.3685 9.63273 8.85429 9.45801 7.60366 9.15946C5.56138 8.67183 4.22187 7.85401 4.22187 6.92728V17.0727C4.22187 17.9995 5.56138 18.8173 7.60366 19.3049C8.85429 19.6035 10.3685 19.7782 12 19.7782C13.6315 19.7782 15.1457 19.6035 16.3963 19.3049C18.4386 18.8173 19.7781 17.9995 19.7781 17.0727Z" fill="currentColor"></path>
+<path clip-rule="evenodd" d="M5.22424 6.92596C5.23746 6.96354 5.30914 7.12301 5.68849 7.36806C6.14801 7.66491 6.87362 7.95724 7.83584 8.18676C8.99933 8.46381 10.4356 8.63273 12 8.63273C13.5644 8.63273 15.0006 8.46381 16.1641 8.18676C17.1264 7.95724 17.852 7.66491 18.3115 7.36806C18.6908 7.12301 18.7625 6.96354 18.7757 6.92596C18.7643 6.89379 18.7163 6.79864 18.5317 6.64654C18.2633 6.42581 17.7644 6.18237 17.1715 5.95874C15.895 5.51475 14.0666 5.21818 12 5.21818C9.93337 5.21818 8.10496 5.51475 6.82851 5.95874C6.23562 6.18237 5.73668 6.42581 5.46827 6.64654C5.28373 6.79864 5.23569 6.89379 5.22424 6.92596ZM18.7782 9.39386C18.1588 9.69624 17.4251 9.94196 16.6285 10.1321C15.2918 10.4513 13.6986 10.6327 12 10.6327C10.3014 10.6327 8.70817 10.4513 7.37145 10.1321C6.57488 9.94196 5.84121 9.69624 5.22187 9.39386V17.0637C5.22576 17.0772 5.27137 17.2434 5.68849 17.5135C6.14801 17.8104 6.87362 18.1027 7.83584 18.3322C8.99933 18.6093 10.4356 18.7782 12 18.7782C13.5644 18.7782 15.0006 18.6093 16.1641 18.3322C17.1264 18.1027 17.852 17.8104 18.3115 17.5135C18.7286 17.2434 18.7742 17.0773 18.7782 17.0637V9.39386ZM20.7782 6.92728V17.0727C20.7782 18.0539 20.0789 18.7521 19.3957 19.1934C18.6749 19.6589 17.7096 20.0194 16.6285 20.2755C15.2918 20.5947 13.6986 20.7782 12 20.7782C10.3014 20.7782 8.70817 20.5947 7.37145 20.2755C6.29043 20.0194 5.32511 19.6589 4.60427 19.1934C3.92111 18.7521 3.22187 18.0539 3.22187 17.0727L3.22187 6.92728C3.22187 6.13421 3.68652 5.52271 4.1979 5.10179C4.7152 4.6752 5.40884 4.3357 6.215 4.06974C7.81014 3.53455 9.77089 3.21818 12 3.21818C14.2291 3.21818 16.1899 3.53455 17.785 4.06974C18.5911 4.3357 19.2848 4.6752 19.8021 5.10179C20.3135 5.52271 20.7782 6.13421 20.7782 6.92728Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+<h1 class="text-xl font-bold text-black dark:text-white">FinTrack</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center size-10 rounded-full bg-background-light dark:bg-background-dark hover:bg-black/5 dark:hover:bg-white/5">
+<span class="material-symbols-outlined text-black dark:text-white">
+            notifications
+          </span>
+</button>
+<div class="size-10 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAID3Wnr0iwEPpaHPAjZpKlEU7UZLlbVVjg1JjUzeSj2IuaG0MpkUf3ePNNCAl0ry0RwndceZg42tsRdB6uUD-lZA40z5viKM68bjIovNfMPYrigJ3Y0cMIjlwj5fFqzEoJbEk0BHSoA4CB8okp4Jb9wBRLw5ZGPeKET-7fvm6eRNjIW9oY2zqJF1VL7adc_9BTIXXMK9bfl2T0dxY2LUYlSQi7oiI_pZCUmhdwATn_DJhR3qAs7YdLkm33YM_Zc1qRXkzyDfvNK1o");'></div>
+</div>
+</header>
+<main class="flex-1 px-4 sm:px-6 md:px-10 lg:px-20 xl:px-40 py-8">
+<div class="max-w-4xl mx-auto">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+<h2 class="text-3xl font-bold text-black dark:text-white">Transactions</h2>
+<button class="flex items-center justify-center gap-2 px-4 py-2 font-semibold text-white rounded-lg bg-primary hover:opacity-90">
+<span class="material-symbols-outlined">add</span>
+<span>New Transaction</span>
+</button>
+</div>
+<div class="mb-6">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-black/50 dark:text-white/50">
+              search
+            </span>
+<input class="w-full h-12 pl-12 pr-4 rounded-lg bg-black/5 dark:bg-white/5 border border-transparent focus:outline-none focus:ring-2 focus:ring-primary text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50" placeholder="Search transactions..." type="text"/>
+</div>
+</div>
+<div class="flex flex-wrap gap-4 mb-8">
+<button class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-black bg-black/5 dark:text-white dark:bg-white/5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10">
+<span>Date range</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-black bg-black/5 dark:text-white dark:bg-white/5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10">
+<span>Category</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+<div class="space-y-8">
+<div>
+<h3 class="px-4 pb-4 text-xl font-bold text-black dark:text-white">Today</h3>
+<div class="space-y-2">
+<div class="flex items-center gap-4 p-4 transition-colors rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
+<div class="flex items-center justify-center p-3 rounded-full bg-primary/20 text-primary">
+<span class="material-symbols-outlined">coffee</span>
+</div>
+<div class="flex-1">
+<p class="font-medium text-black dark:text-white">Coffee</p>
+<p class="text-sm text-black/60 dark:text-white/60">10:30 AM</p>
+</div>
+<p class="font-medium text-black dark:text-white">-$3.50</p>
+</div>
+<div class="flex items-center gap-4 p-4 transition-colors rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
+<div class="flex items-center justify-center p-3 rounded-full bg-primary/20 text-primary">
+<span class="material-symbols-outlined">restaurant</span>
+</div>
+<div class="flex-1">
+<p class="font-medium text-black dark:text-white">Lunch</p>
+<p class="text-sm text-black/60 dark:text-white/60">12:15 PM</p>
+</div>
+<p class="font-medium text-black dark:text-white">-$12.75</p>
+</div>
+<div class="flex items-center gap-4 p-4 transition-colors rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
+<div class="flex items-center justify-center p-3 rounded-full bg-primary/20 text-primary">
+<span class="material-symbols-outlined">shopping_cart</span>
+</div>
+<div class="flex-1">
+<p class="font-medium text-black dark:text-white">Groceries</p>
+<p class="text-sm text-black/60 dark:text-white/60">6:45 PM</p>
+</div>
+<p class="font-medium text-black dark:text-white">-$45.20</p>
+</div>
+</div>
+</div>
+<div>
+<h3 class="px-4 pb-4 text-xl font-bold text-black dark:text-white">Yesterday</h3>
+<div class="space-y-2">
+<div class="flex items-center gap-4 p-4 transition-colors rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
+<div class="flex items-center justify-center p-3 rounded-full bg-primary/20 text-primary">
+<span class="material-symbols-outlined">local_gas_station</span>
+</div>
+<div class="flex-1">
+<p class="font-medium text-black dark:text-white">Gas</p>
+<p class="text-sm text-black/60 dark:text-white/60">9:00 AM</p>
+</div>
+<p class="font-medium text-black dark:text-white">-$30.00</p>
+</div>
+<div class="flex items-center gap-4 p-4 transition-colors rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
+<div class="flex items-center justify-center p-3 rounded-full bg-primary/20 text-primary">
+<span class="material-symbols-outlined">shopping_bag</span>
+</div>
+<div class="flex-1">
+<p class="font-medium text-black dark:text-white">Shopping</p>
+<p class="text-sm text-black/60 dark:text-white/60">11:00 AM</p>
+</div>
+<p class="font-medium text-black dark:text-white">-$75.50</p>
+</div>
+<div class="flex items-center gap-4 p-4 transition-colors rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
+<div class="flex items-center justify-center p-3 rounded-full bg-primary/20 text-primary">
+<span class="material-symbols-outlined">theaters</span>
+</div>
+<div class="flex-1">
+<p class="font-medium text-black dark:text-white">Movie</p>
+<p class="text-sm text-black/60 dark:text-white/60">3:30 PM</p>
+</div>
+<p class="font-medium text-black dark:text-white">-$15.00</p>
+</div>
+</div>
+</div>
+<div>
+<h3 class="px-4 pb-4 text-xl font-bold text-black dark:text-white">June 14, 2024</h3>
+<div class="space-y-2">
+<div class="flex items-center gap-4 p-4 transition-colors rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
+<div class="flex items-center justify-center p-3 rounded-full bg-primary/20 text-primary">
+<span class="material-symbols-outlined">home</span>
+</div>
+<div class="flex-1">
+<p class="font-medium text-black dark:text-white">Rent</p>
+<p class="text-sm text-black/60 dark:text-white/60">8:00 AM</p>
+</div>
+<p class="font-medium text-black dark:text-white">-$1200.00</p>
+</div>
+<div class="flex items-center gap-4 p-4 transition-colors rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
+<div class="flex items-center justify-center p-3 rounded-full bg-primary/20 text-primary">
+<span class="material-symbols-outlined">receipt_long</span>
+</div>
+<div class="flex-1">
+<p class="font-medium text-black dark:text-white">Utilities</p>
+<p class="text-sm text-black/60 dark:text-white/60">10:00 AM</p>
+</div>
+<p class="font-medium text-black dark:text-white">-$150.00</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>
