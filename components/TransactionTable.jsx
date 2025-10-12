@@ -128,7 +128,7 @@ export function TransactionTable({
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto -mx-16">
+        <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead className="sticky top-0 bg-zinc-50 z-10">
               <tr>
