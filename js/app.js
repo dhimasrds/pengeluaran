@@ -245,9 +245,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Global functions for HTML onclick handlers
-window.login = () => app.login();
-window.logout = () => app.logout();
-window.simpanLimit = () => app.saveLimit();
-window.tambahPengeluaran = () => app.addExpense();
-window.hapusPengeluaran = (id) => app.deleteExpense(id);
-window.loadPengeluaran = () => app.loadExpenses();
+window.login = () => app?.login();
+window.logout = () => app?.logout();
+window.simpanLimit = () => app?.saveLimit();
+window.simpanLimitDesktop = () => app?.saveLimit();
+window.tambahPengeluaran = () => app?.addExpense();
+window.tambahPengeluaranDesktop = () => {
+  // Sync desktop form to mobile form
+  const tanggal = document.getElementById('tanggalDesktop');
+  const kategori = document.getElementById('kategoriDesktop');
+  const catatan = document.getElementById('catatanDesktop');
+  const nominal = document.getElementById('nominalDesktop');
+
+  if (tanggal) document.getElementById('tanggal').value = tanggal.value;
+  if (kategori) document.getElementById('kategori').value = kategori.value;
+  if (catatan) document.getElementById('catatan').value = catatan.value;
+  if (nominal) document.getElementById('nominal').value = nominal.value;
+
+  app?.addExpense();
+};
+window.hapusPengeluaran = (id) => app?.deleteExpense(id);
+window.editPengeluaran = (id) => {
+  alert('Fitur edit akan segera ditambahkan!');
+};
+window.eksporCSV = () => {
+  alert('Fitur ekspor CSV akan segera ditambahkan!');
+};
+window.kirimEmail = () => {
+  alert('Fitur kirim email akan segera ditambahkan!');
+};
