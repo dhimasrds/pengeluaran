@@ -39,6 +39,11 @@ export class App {
   setupAuthStateListener() {
     this.authManager.setAuthStateListener((user) => {
       if (user) {
+        // For new logins, save login time first
+        if (!this.authManager.isSessionValid()) {
+          this.authManager.saveLoginTime();
+        }
+        
         // Check if session is still valid (within 24 hours)
         if (this.authManager.isSessionValid()) {
           console.log('User is signed in and session is valid:', user.email);

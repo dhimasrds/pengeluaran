@@ -61,7 +61,7 @@ export class AuthManager {
     const { signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
     try {
       await signInWithEmailAndPassword(this.auth, email, password);
-      this.saveLoginTime(); // Save login timestamp
+      // Login time will be saved in auth state listener
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
