@@ -68,9 +68,34 @@ export class App {
   }
 
   setupEventListeners() {
-    // Sort change listener
+    // Sort change listener (mobile)
     if (this.uiManager.elements.sortBy) {
       this.uiManager.elements.sortBy.addEventListener('change', () => {
+        this.loadExpenses();
+      });
+    }
+
+    // Sort change listener (desktop)
+    if (this.uiManager.elements.sortByDesktop) {
+      this.uiManager.elements.sortByDesktop.addEventListener('change', () => {
+        this.loadExpenses();
+      });
+    }
+
+    // Filter bulan listener (mobile)
+    if (this.uiManager.elements.filterBulan) {
+      this.uiManager.elements.filterBulan.addEventListener('change', (e) => {
+        this.uiManager.setCurrentMonth(e.target.value);
+        this.loadSummary();
+        this.loadExpenses();
+      });
+    }
+
+    // Filter bulan listener (desktop)
+    if (this.uiManager.elements.filterBulanDesktop) {
+      this.uiManager.elements.filterBulanDesktop.addEventListener('change', (e) => {
+        this.uiManager.setCurrentMonth(e.target.value);
+        this.loadSummary();
         this.loadExpenses();
       });
     }
