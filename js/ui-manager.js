@@ -133,13 +133,13 @@ export class UIManager {
       bar.setAttribute('aria-valuenow', clampedValue);
 
       // Update color based on utilization
-      bar.classList.remove('bg-success', 'bg-warning', 'bg-destructive');
+      bar.classList.remove('bg-success', 'bg-warning', 'bg-destructive', 'bg-accent');
       if (clampedValue >= 100) {
         bar.classList.add('bg-destructive');
       } else if (clampedValue >= 80) {
         bar.classList.add('bg-warning');
       } else {
-        bar.classList.add('bg-success');
+        bar.classList.add('bg-accent');
       }
     });
   }
@@ -280,6 +280,8 @@ export class UIManager {
   setCurrentMonth(month) {
     if (this.elements.bulan) this.elements.bulan.value = month;
     if (this.elements.bulanDesktop) this.elements.bulanDesktop.value = month;
+    if (this.elements.filterBulan) this.elements.filterBulan.value = month;
+    if (this.elements.filterBulanDesktop) this.elements.filterBulanDesktop.value = month;
   }
 
   getSortOption() {

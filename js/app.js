@@ -37,7 +37,7 @@ export class App {
   }
 
   setupAuthStateListener() {
-    this.authManager.setAuthStateListener((user) => {
+    this.authManager.setAuthStateListener(async (user) => {
       if (user) {
         // For new logins, save login time first
         if (!this.authManager.isSessionValid()) {
@@ -48,8 +48,17 @@ export class App {
         if (this.authManager.isSessionValid()) {
           console.log('User is signed in and session is valid:', user.email);
           this.uiManager.showDashboard();
-          this.loadSummary();
-          this.loadExpenses();
+          
+          // Set current month to today's month
+          const currentMonth = new Date().toISOString().slice(0, 7);
+          this.uiManager.setCurrentMonth(currentMonth);
+          
+          // Load data after a short delay to ensure UI is ready
+          setTimeout(async () => {
+            await this.loadSummary();
+            await this.loadExpenses();
+          }, 100);
+          
           this.startSessionTimer();
           this.updateSessionStatus();
         } else {
@@ -188,43 +197,58 @@ export class App {
   }
 
   async loadSummary() {
-    const currentMonth = this.uiManager.getCurrentMonth();
-    this.uiManager.setCurrentMonth(currentMonth);
+    try {
+      const currentMonth = this.uiManager.getCurrentMonth();
+      this.uiManager.setCurrentMonth(currentMonth);
 
-    // Get expenses for current month
-    const expensesResult = await this.expenseManager.getExpenses(currentMonth);
-    if (!expensesResult.success) {
-      this.uiManager.showAlert('Gagal memuat data pengeluaran: ' + expensesResult.error);
-      return;
+      // Get expenses for current month
+      const expensesResult = await this.expenseManager.getExpenses(currentMonth);
+      if (!expensesResult.success) {
+        console.error('Failed to load expenses:', expensesResult.error);
+        this.uiManager.showAlert('Failed to load expense data: ' + expensesResult.error);
+        return;
+      }
+
+      const totalExpenses = this.expenseManager.calculateTotal(expensesResult.data);
+
+      // Get limit for current month
+      const limitResult = await this.limitManager.getLimit(currentMonth);
+      if (!limitResult.success) {
+        console.error('Failed to load limit:', limitResult.error);
+        this.uiManager.showAlert('Failed to load budget data: ' + limitResult.error);
+        return;
+      }
+
+      const limit = limitResult.limit || 0;
+      const remainingLimit = this.limitManager.calculateRemainingLimit(limit, totalExpenses);
+      const utilization = this.limitManager.calculateUtilization(totalExpenses, limit);
+
+      this.uiManager.updateSummary(totalExpenses, remainingLimit, utilization);
+      console.log('Summary loaded successfully:', { totalExpenses, remainingLimit, utilization });
+    } catch (error) {
+      console.error('Error loading summary:', error);
+      this.uiManager.showAlert('Error loading summary: ' + error.message);
     }
-
-    const totalExpenses = this.expenseManager.calculateTotal(expensesResult.data);
-
-    // Get limit for current month
-    const limitResult = await this.limitManager.getLimit(currentMonth);
-    if (!limitResult.success) {
-      this.uiManager.showAlert('Gagal memuat data limit: ' + limitResult.error);
-      return;
-    }
-
-    const limit = limitResult.limit || 0;
-    const remainingLimit = this.limitManager.calculateRemainingLimit(limit, totalExpenses);
-    const utilization = this.limitManager.calculateUtilization(totalExpenses, limit);
-
-    this.uiManager.updateSummary(totalExpenses, remainingLimit, utilization);
   }
 
   async loadExpenses() {
-    const currentMonth = this.uiManager.getCurrentMonth();
-    const sortOption = this.uiManager.getSortOption();
+    try {
+      const currentMonth = this.uiManager.getCurrentMonth();
+      const sortOption = this.uiManager.getSortOption();
 
-    const result = await this.expenseManager.getExpenses(currentMonth);
-    
-    if (result.success) {
-      const sortedExpenses = this.expenseManager.sortExpenses(result.data, sortOption);
-      this.uiManager.updateExpenseTable(sortedExpenses);
-    } else {
-      this.uiManager.showAlert('Gagal memuat riwayat pengeluaran: ' + result.error);
+      const result = await this.expenseManager.getExpenses(currentMonth);
+      
+      if (result.success) {
+        const sortedExpenses = this.expenseManager.sortExpenses(result.data, sortOption);
+        this.uiManager.updateExpenseTable(sortedExpenses);
+        console.log('Expenses loaded successfully:', sortedExpenses.length, 'transactions');
+      } else {
+        console.error('Failed to load expenses:', result.error);
+        this.uiManager.showAlert('Failed to load transaction history: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error loading expenses:', error);
+      this.uiManager.showAlert('Error loading expenses: ' + error.message);
     }
   }
 
@@ -286,6 +310,12 @@ window.tambahPengeluaranDesktop = () => {
   if (kategori) document.getElementById('kategori').value = kategori.value;
   if (catatan) document.getElementById('catatan').value = catatan.value;
   if (nominal) document.getElementById('nominal').value = nominal.value;
+
+  // Also sync the other way for consistency
+  if (tanggal) tanggal.value = document.getElementById('tanggal').value;
+  if (kategori) kategori.value = document.getElementById('kategori').value;
+  if (catatan) catatan.value = document.getElementById('catatan').value;
+  if (nominal) nominal.value = document.getElementById('nominal').value;
 
   app?.addExpense();
 };
