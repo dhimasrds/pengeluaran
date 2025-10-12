@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinTrack - Dashboard Pengeluaran</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Custom Tailwind Config - TEMA VIOLET + STONE
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: '#fafaf9',
+            surface: '#ffffff',
+            border: {
+              DEFAULT: '#e7e5e4',
+              dark: '#d6d3d1',
+            },
+            text: {
+              primary: '#1c1917',
+              secondary: '#57534e',
+              muted: '#a8a29e',
+            },
+            accent: {
+              DEFAULT: '#7c3aed',
+              hover: '#6d28d9',
+              pressed: '#5b21b6',
+              fg: '#ffffff',
+              light: '#f5f3ff',
+            },
+            destructive: {
+              DEFAULT: '#dc2626',
+              hover: '#b91c1c',
+              fg: '#ffffff',
+            },
+            success: {
+              DEFAULT: '#16a34a',
+              light: '#f0fdf4',
+            },
+            warning: {
+              DEFAULT: '#ea580c',
+              light: '#fff7ed',
+            },
+          },
+          spacing: {
+            '2': '0.125rem',
+            '6': '0.375rem',
+            '12': '0.75rem',
+            '16': '1rem',
+            '24': '1.5rem',
+            '32': '2rem',
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #fafaf9 0%, #f5f5f4 50%, #f5f3ff 100%);
+    }
+
+    /* Smooth page transitions */
+    .page-content {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Active nav item */
+    .nav-item.active {
+      background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+      color: white;
+    }
+
+    .nav-item.active svg {
+      color: white;
+    }
+
+    /* Category selection */
+    .category-item.active {
+      background: #7c3aed;
+      border-color: #7c3aed;
+      color: white;
+    }
+
+    /* Focus styles */
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px white, 0 0 0 4px #7c3aed;
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased">
+
+  <!-- LOADING -->
+  <div id="loading-section" class="flex items-center justify-center min-h-screen">
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-48 w-48 border-4 border-accent border-t-transparent mx-auto mb-16"></div>
+      <p class="text-text-secondary">Memuat aplikasi...</p>
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="login-section" class="hidden flex items-center justify-center min-h-screen px-16">
+    <div class="bg-surface p-24 rounded-xl shadow-lg border border-border w-full max-w-sm">
+      <div class="flex justify-center mb-24">
+        <svg class="text-accent" width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M39.5563 34.1455V13.8546C39.5563 15.708 36.8773 17.3437 32.7927 18.3189C30.2914 18.916 27.263 19.2655 24 19.2655C20.737 19.2655 17.7086 18.916 15.2073 18.3189C11.1227 17.3437 8.44365 15.708 8.44365 13.8546V34.1455C8.44365 35.9988 11.1227 37.6346 15.2073 38.6098C17.7086 39.2069 20.737 39.5564 24 39.5564C27.263 39.5564 30.2914 39.2069 32.7927 38.6098C36.8773 37.6346 39.5563 35.9988 39.5563 34.1455Z" fill="currentColor"></path>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold mb-16 text-center text-text-primary">Login FinTrack</h2>
+      <div class="space-y-12">
+        <div>
+          <label for="email" class="block text-sm font-medium text-text-primary mb-6">Email</label>
+          <input id="email" type="email" placeholder="nama@email.com"
+            class="border border-border w-full px-12 py-8 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-150">
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium text-text-primary mb-6">Password</label>
+          <input id="password" type="password" placeholder="••••••••"
+            class="border border-border w-full px-12 py-8 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-150">
+        </div>
+        <button onclick="login()"
+          class="bg-accent text-accent-fg w-full py-12 rounded-lg font-semibold hover:bg-accent-hover active:bg-accent-pressed transition-all duration-150 shadow-md">
+          Masuk
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="hidden min-h-screen">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-border shadow-sm">
+      <div class="max-w-7xl mx-auto px-16 py-16">
+        <div class="flex items-center justify-between">
+          <!-- Logo & Title -->
+          <div class="flex items-center gap-12">
+            <svg class="text-accent" width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M39.5563 34.1455V13.8546C39.5563 15.708 36.8773 17.3437 32.7927 18.3189C30.2914 18.916 27.263 19.2655 24 19.2655C20.737 19.2655 17.7086 18.916 15.2073 18.3189C11.1227 17.3437 8.44365 15.708 8.44365 13.8546V34.1455C8.44365 35.9988 11.1227 37.6346 15.2073 38.6098C17.7086 39.2069 20.737 39.5564 24 39.5564C27.263 39.5564 30.2914 39.2069 32.7927 38.6098C36.8773 37.6346 39.5563 35.9988 39.5563 34.1455Z" fill="currentColor"></path>
+            </svg>
+            <h1 class="text-xl font-bold text-text-primary hidden sm:block">FinTrack</h1>
+          </div>
+
+          <!-- User Info & Logout -->
+          <div class="flex items-center gap-16">
+            <div class="hidden md:flex items-center gap-8">
+              <div class="text-right">
+                <p id="user-name" class="text-sm font-medium text-text-primary">User</p>
+                <p id="session-info" class="text-xs text-text-secondary">Sesi aktif</p>
+              </div>
+              <div class="w-40 h-40 rounded-full bg-accent/20 flex items-center justify-center">
+                <svg class="w-24 h-24 text-accent" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
+                </svg>
+              </div>
+            </div>
+            <button onclick="logout()"
+              class="px-16 py-8 rounded-lg text-sm font-medium text-text-primary border border-border hover:bg-stone-50 transition-all duration-150">
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- BOTTOM NAVIGATION (Mobile) -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border shadow-lg lg:hidden">
+      <div class="flex items-center justify-around py-8">
+        <button onclick="navigateTo('dashboard')" class="nav-item flex flex-col items-center gap-4 px-16 py-8 rounded-lg transition-all duration-150">
+          <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 256 256">
+            <path d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68Z"></path>
+          </svg>
+          <span class="text-xs font-medium">Dashboard</span>
+        </button>
+
+        <button onclick="navigateTo('pengeluaran-baru')" class="nav-item flex flex-col items-center gap-4 px-16 py-8 rounded-lg transition-all duration-150">
+          <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 256 256">
+            <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path>
+          </svg>
+          <span class="text-xs font-medium">Tambah</span>
+        </button>
+
+        <button onclick="navigateTo('riwayat')" class="nav-item flex flex-col items-center gap-4 px-16 py-8 rounded-lg transition-all duration-150">
+          <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 256 256">
+            <path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48ZM40,112H80v32H40Zm56,0H216v32H96ZM216,64V96H40V64ZM40,160H80v32H40Zm176,32H96V160H216v32Z"></path>
+          </svg>
+          <span class="text-xs font-medium">Riwayat</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- SIDEBAR NAVIGATION (Desktop) -->
+    <aside class="hidden lg:block fixed left-0 top-[73px] bottom-0 w-64 bg-surface border-r border-border p-24">
+      <nav class="space-y-8">
+        <button onclick="navigateTo('dashboard')" class="nav-item w-full flex items-center gap-12 px-16 py-12 rounded-lg transition-all duration-150 text-text-secondary hover:bg-stone-50">
+          <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 256 256">
+            <path d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68Z"></path>
+          </svg>
+          <span class="font-medium">Dashboard</span>
+        </button>
+
+        <button onclick="navigateTo('pengeluaran-baru')" class="nav-item w-full flex items-center gap-12 px-16 py-12 rounded-lg transition-all duration-150 text-text-secondary hover:bg-stone-50">
+          <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 256 256">
+            <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path>
+          </svg>
+          <span class="font-medium">Pengeluaran Baru</span>
+        </button>
+
+        <button onclick="navigateTo('riwayat')" class="nav-item w-full flex items-center gap-12 px-16 py-12 rounded-lg transition-all duration-150 text-text-secondary hover:bg-stone-50">
+          <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 256 256">
+            <path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48ZM40,112H80v32H40Zm56,0H216v32H96ZM216,64V96H40V64ZM40,160H80v32H40Zm176,32H96V160H216v32Z"></path>
+          </svg>
+          <span class="font-medium">Riwayat Pengeluaran</span>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="lg:ml-64 pb-24 lg:pb-0 pt-[73px]">
+      <div class="max-w-7xl mx-auto px-16 py-24">
+
+        <!-- DASHBOARD PAGE -->
+        <div id="page-dashboard" class="page-content">
+          <h2 class="text-3xl font-bold text-text-primary mb-24">Keuangan Anda</h2>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-24 mb-24">
+            <!-- Progress Circle -->
+            <div class="bg-surface rounded-xl shadow-md border border-border p-24 flex items-center justify-center">
+              <div class="relative w-48 h-48">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="54" fill="none" stroke="#e7e5e4" stroke-width="8"/>
+                  <circle id="progress-circle" cx="60" cy="60" r="54" fill="none" stroke="#7c3aed" stroke-width="8"
+                    stroke-dasharray="339.292" stroke-dashoffset="135.717" stroke-linecap="round"
+                    class="transition-all duration-500"/>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span id="utilization-percent" class="text-4xl font-bold text-text-primary">60%</span>
+                  <span class="text-sm text-text-secondary">Terpakai</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="space-y-16">
+              <div class="bg-surface rounded-xl shadow-md border border-border p-24">
+                <p class="text-base font-medium text-text-secondary mb-8">Sisa Limit</p>
+                <p id="sisa-limit" class="text-3xl font-bold text-text-primary">Rp 0</p>
+                <p id="limit-total" class="text-sm text-text-muted mt-6">dari Rp 0</p>
+              </div>
+
+              <div class="bg-surface rounded-xl shadow-md border border-border p-24">
+                <p class="text-base font-medium text-text-secondary mb-8">Pengeluaran Bulan Ini</p>
+                <p id="total-pengeluaran" class="text-3xl font-bold text-text-primary">Rp 0</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Transactions -->
+          <div class="bg-surface rounded-xl shadow-md border border-border p-24">
+            <h3 class="text-xl font-bold text-text-primary mb-16">Transaksi Terakhir</h3>
+            <div id="recent-transactions" class="space-y-12">
+              <p class="text-text-muted text-center py-24">Belum ada transaksi</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PENGELUARAN BARU PAGE -->
+        <div id="page-pengeluaran-baru" class="page-content hidden">
+          <h2 class="text-3xl font-bold text-text-primary mb-24">Pengeluaran Baru</h2>
+
+          <div class="max-w-2xl mx-auto space-y-24">
+            <!-- Amount Input -->
+            <div class="bg-surface rounded-xl shadow-md border border-border p-24">
+              <label class="block text-sm font-medium text-text-secondary mb-8">Jumlah</label>
+              <div class="relative">
+                <span class="absolute left-16 top-1/2 -translate-y-1/2 text-3xl font-bold text-text-muted">Rp</span>
+                <input id="nominal-input" type="text" placeholder="0"
+                  class="w-full bg-transparent text-4xl font-bold text-center border-0 focus:ring-0 pl-64 pr-16 py-16 text-text-primary"/>
+              </div>
+            </div>
+
+            <!-- Category Selection -->
+            <div class="bg-surface rounded-xl shadow-md border border-border p-24">
+              <h3 class="text-lg font-semibold text-text-primary mb-16">Pilih Kategori</h3>
+              <div class="grid grid-cols-3 gap-12">
+                <button class="category-item flex flex-col items-center gap-8 p-16 rounded-lg border-2 border-border hover:border-accent transition-all duration-150" data-category="food & beverages">
+                  <svg class="w-32 h-32 text-text-secondary" fill="currentColor" viewBox="0 0 256 256">
+                    <path d="M239.54,63a15.91,15.91,0,0,0-7.25-9.9,201.49,201.49,0,0,0-208.58,0,16,16,0,0,0-5.37,22l96,157.27a16,16,0,0,0,27.36,0l96-157.27A15.82,15.82,0,0,0,239.54,63Z"></path>
+                  </svg>
+                  <span class="font-medium text-sm text-text-primary">Makanan</span>
+                </button>
+
+                <button class="category-item flex flex-col items-center gap-8 p-16 rounded-lg border-2 border-border hover:border-accent transition-all duration-150" data-category="transportation">
+                  <svg class="w-32 h-32 text-text-secondary" fill="currentColor" viewBox="0 0 256 256">
+                    <path d="M240,112H229.2L201.42,49.5A16,16,0,0,0,186.8,40H69.2a16,16,0,0,0-14.62,9.5L26.8,112H16a8,8,0,0,0,0,16h8v80a16,16,0,0,0,16,16H64a16,16,0,0,0,16-16V192h96v16a16,16,0,0,0,16,16h24a16,16,0,0,0,16-16V128h8a8,8,0,0,0,0-16Z"></path>
+                  </svg>
+                  <span class="font-medium text-sm text-text-primary">Transport</span>
+                </button>
+
+                <button class="category-item flex flex-col items-center gap-8 p-16 rounded-lg border-2 border-border hover:border-accent transition-all duration-150" data-category="groceries">
+                  <svg class="w-32 h-32 text-text-secondary" fill="currentColor" viewBox="0 0 256 256">
+                    <path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Z"></path>
+                  </svg>
+                  <span class="font-medium text-sm text-text-primary">Belanja</span>
+                </button>
+
+                <button class="category-item flex flex-col items-center gap-8 p-16 rounded-lg border-2 border-border hover:border-accent transition-all duration-150" data-category="entertainment">
+                  <svg class="w-32 h-32 text-text-secondary" fill="currentColor" viewBox="0 0 256 256">
+                    <path d="M216,104H102.09L210,75.51a8,8,0,0,0,5.68-9.84l-8.16-30a15.93,15.93,0,0,0-19.42-11.13L35.81,64.74a15.75,15.75,0,0,0-9.7,7.4,15.51,15.51,0,0,0-1.55,12L32,111.56c0,.14,0,.29,0,.44v88a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V112A8,8,0,0,0,216,104Z"></path>
+                  </svg>
+                  <span class="font-medium text-sm text-text-primary">Hiburan</span>
+                </button>
+
+                <button class="category-item flex flex-col items-center gap-8 p-16 rounded-lg border-2 border-border hover:border-accent transition-all duration-150" data-category="health">
+                  <svg class="w-32 h-32 text-text-secondary" fill="currentColor" viewBox="0 0 256 256">
+                    <path d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32Z"></path>
+                  </svg>
+                  <span class="font-medium text-sm text-text-primary">Kesehatan</span>
+                </button>
+
+                <button class="category-item flex flex-col items-center gap-8 p-16 rounded-lg border-2 border-border hover:border-accent transition-all duration-150" data-category="other">
+                  <svg class="w-32 h-32 text-text-secondary" fill="currentColor" viewBox="0 0 256 256">
+                    <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z"></path>
+                  </svg>
+                  <span class="font-medium text-sm text-text-primary">Lainnya</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Form Details -->
+            <div class="bg-surface rounded-xl shadow-md border border-border p-24 space-y-16">
+              <div>
+                <label class="block text-sm font-medium text-text-primary mb-6">Catatan</label>
+                <input id="catatan-input" type="text" placeholder="Tambahkan catatan (opsional)"
+                  class="w-full px-12 py-8 rounded-lg border border-border focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-150"/>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-text-primary mb-6">Tanggal</label>
+                <input id="tanggal-input" type="date"
+                  class="w-full px-12 py-8 rounded-lg border border-border focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-150"/>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button onclick="submitExpense()"
+              class="w-full bg-accent text-accent-fg font-bold py-16 rounded-xl hover:bg-accent-hover active:bg-accent-pressed transition-all duration-150 shadow-md">
+              Simpan Pengeluaran
+            </button>
+          </div>
+        </div>
+
+        <!-- RIWAYAT PAGE -->
+        <div id="page-riwayat" class="page-content hidden">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-16 mb-24">
+            <h2 class="text-3xl font-bold text-text-primary">Riwayat Pengeluaran</h2>
+            <div class="flex gap-8">
+              <select id="filter-bulan-riwayat" class="px-12 py-8 rounded-lg border border-border focus:ring-2 focus:ring-accent text-sm">
+                <option value="">Semua Bulan</option>
+              </select>
+              <select id="sort-riwayat" class="px-12 py-8 rounded-lg border border-border focus:ring-2 focus:ring-accent text-sm">
+                <option value="date-desc">Terbaru</option>
+                <option value="date-asc">Terlama</option>
+                <option value="amount-desc">Terbesar</option>
+                <option value="amount-asc">Terkecil</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Search Bar -->
+          <div class="mb-24">
+            <div class="relative">
+              <svg class="absolute left-12 top-1/2 -translate-y-1/2 w-20 h-20 text-text-muted" fill="currentColor" viewBox="0 0 256 256">
+                <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
+              </svg>
+              <input id="search-input" type="text" placeholder="Cari transaksi..."
+                class="w-full pl-48 pr-16 py-12 rounded-lg border border-border focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-150"/>
+            </div>
+          </div>
+
+          <!-- Transactions List -->
+          <div id="transactions-list" class="space-y-16">
+            <div class="bg-surface rounded-xl shadow-md border border-border p-24">
+              <p class="text-text-muted text-center py-24">Belum ada transaksi</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    // Import Firebase modules
+    import { App } from './js/app.js';
+
+    let appInstance;
+    let currentPage = 'dashboard';
+    let selectedCategory = null;
+
+    // Initialize app
+    document.addEventListener('DOMContentLoaded', async () => {
+      appInstance = new App();
+      await appInstance.initialize();
+
+      // Set default date
+      document.getElementById('tanggal-input').value = new Date().toISOString().split('T')[0];
+    });
+
+    // Navigation function
+    window.navigateTo = function(page) {
+      // Hide all pages
+      document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
+
+      // Show selected page
+      document.getElementById(`page-${page}`).classList.remove('hidden');
+
+      // Update nav active state
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      document.querySelectorAll(`[onclick="navigateTo('${page}')"]`).forEach(item => item.classList.add('active'));
+
+      currentPage = page;
+
+      // Load data for specific pages
+      if (page === 'dashboard') {
+        loadDashboardData();
+      } else if (page === 'riwayat') {
+        loadRiwayatData();
+      }
+    };
+
+    // Category selection
+    document.querySelectorAll('.category-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+        selectedCategory = this.dataset.category;
+      });
+    });
+
+    // Submit expense
+    window.submitExpense = async function() {
+      const nominal = document.getElementById('nominal-input').value.replace(/\D/g, '');
+      const catatan = document.getElementById('catatan-input').value;
+      const tanggal = document.getElementById('tanggal-input').value;
+
+      if (!nominal || !selectedCategory || !tanggal) {
+        alert('Mohon lengkapi semua field yang diperlukan');
+        return;
+      }
+
+      const expenseData = {
+        tanggal,
+        kategori: selectedCategory,
+        catatan: catatan || '-',
+        nominal: parseInt(nominal)
+      };
+
+      // Use existing app method
+      document.getElementById('tanggal').value = tanggal;
+      document.getElementById('kategori').value = selectedCategory;
+      document.getElementById('catatan').value = catatan;
+      document.getElementById('nominal').value = nominal;
+
+      await appInstance.addExpense();
+
+      // Clear form
+      document.getElementById('nominal-input').value = '';
+      document.getElementById('catatan-input').value = '';
+      document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
+      selectedCategory = null;
+
+      // Navigate to dashboard
+      navigateTo('dashboard');
+    };
+
+    // Load dashboard data
+    async function loadDashboardData() {
+      if (!appInstance) return;
+
+      await appInstance.loadSummary();
+
+      // Load recent transactions (last 5)
+      const result = await appInstance.expenseManager.getExpenses(new Date().toISOString().slice(0, 7));
+      if (result.success && result.data.length > 0) {
+        const recent = result.data.slice(0, 5);
+        displayRecentTransactions(recent);
+      }
+    }
+
+    // Display recent transactions
+    function displayRecentTransactions(transactions) {
+      const container = document.getElementById('recent-transactions');
+      if (transactions.length === 0) {
+        container.innerHTML = '<p class="text-text-muted text-center py-24">Belum ada transaksi</p>';
+        return;
+      }
+
+      const formatRupiah = (num) => {
+        return new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
+          minimumFractionDigits: 0,
+        }).format(num);
+      };
+
+      const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        return new Intl.DateTimeFormat('id-ID', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }).format(date);
+      };
+
+      container.innerHTML = transactions.map(t => `
+        <div class="flex items-center justify-between p-16 hover:bg-stone-50 rounded-lg transition-colors">
+          <div class="flex items-center gap-12">
+            <div class="w-40 h-40 rounded-full bg-accent/20 flex items-center justify-center">
+              <svg class="w-20 h-20 text-accent" fill="currentColor" viewBox="0 0 256 256">
+                <path d="M239.54,63a15.91,15.91,0,0,0-7.25-9.9,201.49,201.49,0,0,0-208.58,0,16,16,0,0,0-5.37,22l96,157.27a16,16,0,0,0,27.36,0l96-157.27A15.82,15.82,0,0,0,239.54,63Z"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="font-medium text-text-primary">${t.catatan || t.kategori}</p>
+              <p class="text-sm text-text-secondary">${formatDate(t.tanggal)}</p>
+            </div>
+          </div>
+          <p class="font-bold text-text-primary">${formatRupiah(t.nominal)}</p>
+        </div>
+      `).join('');
+    }
+
+    // Load riwayat data
+    async function loadRiwayatData() {
+      if (!appInstance) return;
+
+      const month = document.getElementById('filter-bulan-riwayat').value || new Date().toISOString().slice(0, 7);
+      const sortOption = document.getElementById('sort-riwayat').value;
+
+      const result = await appInstance.expenseManager.getExpenses(month);
+      if (result.success) {
+        const sorted = appInstance.expenseManager.sortExpenses(result.data, sortOption);
+        displayTransactionsList(sorted);
+      }
+    }
+
+    // Display transactions list
+    function displayTransactionsList(transactions) {
+      const container = document.getElementById('transactions-list');
+
+      if (transactions.length === 0) {
+        container.innerHTML = `
+          <div class="bg-surface rounded-xl shadow-md border border-border p-24">
+            <p class="text-text-muted text-center py-24">Belum ada transaksi</p>
+          </div>
+        `;
+        return;
+      }
+
+      const formatRupiah = (num) => {
+        return new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
+          minimumFractionDigits: 0,
+        }).format(num);
+      };
+
+      const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        return new Intl.DateTimeFormat('id-ID', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }).format(date);
+      };
+
+      // Group by date
+      const grouped = {};
+      transactions.forEach(t => {
+        const date = formatDate(t.tanggal);
+        if (!grouped[date]) grouped[date] = [];
+        grouped[date].push(t);
+      });
+
+      container.innerHTML = Object.entries(grouped).map(([date, items]) => `
+        <div class="bg-surface rounded-xl shadow-md border border-border overflow-hidden">
+          <div class="px-24 py-12 bg-stone-50 border-b border-border">
+            <h3 class="font-semibold text-text-primary">${date}</h3>
+          </div>
+          <div class="divide-y divide-border">
+            ${items.map(t => `
+              <div class="flex items-center justify-between p-16 hover:bg-stone-50 transition-colors">
+                <div class="flex items-center gap-12 flex-1">
+                  <div class="w-40 h-40 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-20 h-20 text-accent" fill="currentColor" viewBox="0 0 256 256">
+                      <path d="M239.54,63a15.91,15.91,0,0,0-7.25-9.9,201.49,201.49,0,0,0-208.58,0,16,16,0,0,0-5.37,22l96,157.27a16,16,0,0,0,27.36,0l96-157.27A15.82,15.82,0,0,0,239.54,63Z"></path>
+                    </svg>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="font-medium text-text-primary">${t.catatan || t.kategori}</p>
+                    <p class="text-sm text-text-secondary capitalize">${t.kategori}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-12">
+                  <p class="font-bold text-text-primary whitespace-nowrap">${formatRupiah(t.nominal)}</p>
+                  <button onclick="deleteTransaction('${t.id}')" class="p-8 text-destructive hover:bg-red-50 rounded-lg transition-colors">
+                    <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 256 256">
+                      <path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Delete transaction
+    window.deleteTransaction = async function(id) {
+      if (confirm('Yakin ingin menghapus transaksi ini?')) {
+        await appInstance.deleteExpense(id);
+        loadRiwayatData();
+        if (currentPage === 'dashboard') {
+          loadDashboardData();
+        }
+      }
+    };
+
+    // Filter and sort listeners
+    document.getElementById('filter-bulan-riwayat').addEventListener('change', loadRiwayatData);
+    document.getElementById('sort-riwayat').addEventListener('change', loadRiwayatData);
+
+    // Search functionality
+    document.getElementById('search-input').addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      const transactions = document.querySelectorAll('#transactions-list [class*="hover:bg"]');
+
+      transactions.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+
+    // Format currency input
+    document.getElementById('nominal-input').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value) {
+        value = parseInt(value).toLocaleString('id-ID');
+      }
+      e.target.value = value;
+    });
+
+    // Expose functions for onclick handlers
+    window.login = () => appInstance?.login();
+    window.logout = () => appInstance?.logout();
+  </script>
+
+</body>
+</html>
+
