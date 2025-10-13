@@ -207,6 +207,46 @@
     loadRingkasan();
   };
 
+  window.kirimEmail = async function () {
+    const bulan = document.getElementById("filterBulan").value || new Date().toISOString().slice(0, 7);
+    const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
+    const snap = await getDocs(q);
+    let data = [];
+    let total = 0;
+    snap.forEach((d) => {
+      const p = d.data();
+      if (p.tanggal.startsWith(bulan)) {
+        data.push(p);
+        total += p.nominal;
+      }
+    });
+
+    if (data.length === 0) return alert("Tidak ada data untuk dikirim");
+
+    const limit = await getLimit(bulan);
+    const sisa = limit ? limit - total : 0;
+    const util = limit ? ((total / limit) * 100).toFixed(1) : "0";
+
+    let rincian = data.map(p => `${p.tanggal} | ${p.kategori} | ${p.catatan || "-"} | Rp${p.nominal.toLocaleString()}`).join("\n");
+
+    const templateParams = {
+      to_email: auth.currentUser.email,
+      bulan: bulan,
+      total: "Rp" + total.toLocaleString(),
+      limit: limit ? "Rp" + limit.toLocaleString() : "-",
+      sisa: limit ? "Rp" + sisa.toLocaleString() : "-",
+      utilisasi: util + "%",
+      rincian: rincian
+    };
+
+    try {
+      await emailjs.send("service_hhg9fso", "template_pc73k0a", templateParams);
+      alert("Email berhasil dikirim ke " + auth.currentUser.email);
+    } catch (err) {
+      alert("Gagal mengirim email: " + err.message);
+    }
+  };
+
   window.simpanPengeluaran = async function () {
     const tanggal = document.getElementById("tanggal").value;
     const kategori = document.getElementById("kategori").value;
