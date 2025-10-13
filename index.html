@@ -12,82 +12,84 @@
     })();
   </script>
 </head>
-<body class="bg-[#C3D7F07A] min-h-screen p-4 sm:p-6">
+<body class="bg-[#FFF9E5] min-h-screen p-4 sm:p-6">
 
   <!-- Login -->
-  <div id="login-section" class="max-w-md mx-auto bg-white shadow-lg p-6 rounded-lg border-t-4 border-[#1B2A2A]">
-    <h2 class="text-xl font-bold mb-4 text-center text-[#1B2A2A]">Login</h2>
-    <input type="email" id="email" placeholder="Email" class="border p-2 mb-2 w-full rounded"/>
-    <input type="password" id="password" placeholder="Password" class="border p-2 mb-4 w-full rounded"/>
-    <button onclick="login()" class="bg-[#1B2A2A] hover:bg-[#20bf55] text-white font-semibold px-4 py-2 rounded w-full">Masuk</button>
+  <div id="login-section" class="max-w-md mx-auto bg-white shadow-lg hover:shadow-xl transition rounded-lg border-t-4 border-[#1B2A2A]">
+    <h2 class="text-xl font-bold mb-4 text-center text-[#1B2A2A] pt-6">Login</h2>
+    <div class="px-6 pb-6">
+      <input type="email" id="email" placeholder="Email" class="border p-2 mb-2 w-full rounded"/>
+      <input type="password" id="password" placeholder="Password" class="border p-2 mb-4 w-full rounded"/>
+      <button onclick="login()" class="bg-[#1B2A2A] hover:bg-[#20bf55] text-white font-semibold px-4 py-2 rounded w-full">Masuk</button>
+    </div>
   </div>
 
   <!-- Dashboard -->
   <div id="dashboard" style="display:none;" class="max-w-7xl mx-auto">
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 mt-6">
       <h1 class="text-2xl font-bold text-[#1B2A2A] flex items-center gap-2">
-        <span></span> Rekap Pengeluaran Bulanan
+        <span>📊</span> Rekap Pengeluaran Bulanan
       </h1>
       <div class="flex items-center gap-3">
         <span id="userEmail" class="text-gray-700 text-sm sm:text-base"></span>
-        <button onclick="logout()" class="bg-[#F44336] text-white px-4 py-2 rounded">Keluar</button>
+        <button onclick="logout()" class="bg-[#F44336] hover:bg-[#E53935] text-white px-4 py-2 rounded transition">Keluar</button>
       </div>
     </div>
 
     <!-- Ringkasan -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
       <!-- Total Pengeluaran -->
-      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-[#F44336]">
+      <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition p-5 border-l-4 border-[#F44336]">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-gray-500 text-sm">Total Pengeluaran</p>
-          <img src="https://cdn-icons-png.flaticon.com/512/10080/10080680.png" alt="Pie Chart Icon" class="w-8 h-8">
+          <p class="text-gray-600 text-sm font-medium">Total Pengeluaran</p>
+          <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png" alt="Pie Chart Icon" class="w-9 h-9">
         </div>
-        <p id="totalPengeluaran" class="text-xl font-bold text-[#F44336]">Rp0</p>
+        <p id="totalPengeluaran" class="text-2xl font-bold text-[#F44336]">Rp0</p>
       </div>
 
       <!-- Sisa Limit -->
-      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-[#20bf55]">
+      <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition p-5 border-l-4 border-[#20bf55]">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-gray-500 text-sm">Sisa Limit</p>
-          <img src="https://cdn-icons-png.flaticon.com/512/7066/7066126.png" alt="Money Monitor Icon" class="w-8 h-8">
+          <p class="text-gray-600 text-sm font-medium">Sisa Limit</p>
+          <img src="https://cdn-icons-png.flaticon.com/512/2920/2920341.png" alt="Money Monitor Icon" class="w-9 h-9">
         </div>
-        <p id="sisaLimit" class="text-xl font-bold text-[#1B2A2A]">-</p>
-        <div class="mt-2 w-full bg-gray-200 rounded-full h-2.5">
-          <div id="progressBar" class="bg-[#20bf55] h-2.5 rounded-full" style="width: 0%;"></div>
+        <p id="sisaLimit" class="text-2xl font-bold text-[#1B2A2A]">-</p>
+        <div class="mt-3 w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+          <div id="progressBar" class="bg-[#20bf55] h-2.5 rounded-full transition-all duration-300" style="width: 0%;"></div>
         </div>
       </div>
 
       <!-- Utilisasi -->
-      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-[#FF9F1C]">
+      <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition p-5 border-l-4 border-[#FF9F1C]">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-gray-500 text-sm">Utilisasi</p>
-          <img src="https://cdn-icons-png.flaticon.com/512/8685/8685159.png" alt="Time Icon" class="w-8 h-8">
+          <p class="text-gray-600 text-sm font-medium">Utilisasi</p>
+          <img src="https://cdn-icons-png.flaticon.com/512/4332/4332857.png" alt="Time Hand Icon" class="w-9 h-9">
         </div>
-        <p id="utilisasi" class="text-xl font-bold text-[#FF9F1C]">0%</p>
+        <p id="utilisasi" class="text-2xl font-bold text-[#FF9F1C]">0%</p>
       </div>
     </div>
 
     <!-- Limit & Form -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
       <!-- Limit -->
-      <div class="bg-white shadow rounded-lg p-4 border-t-4 border-[#1B2A2A]">
-        <h2 class="font-semibold mb-3 text-[#1B2A2A] flex items-center gap-2">🗓️ Atur Limit Bulanan</h2>
-        <div class="flex flex-col sm:flex-row gap-2">
+      <div class="bg-white shadow-md hover:shadow-xl rounded-xl p-5 border-t-4 border-[#1B2A2A] transition">
+        <h2 class="font-semibold mb-3 text-[#1B2A2A] flex items-center gap-2 text-lg">🗓️ Atur Limit Bulanan</h2>
+        <div class="flex flex-col sm:flex-row gap-3">
           <input type="month" id="bulan" class="border p-2 rounded w-full sm:w-auto"/>
           <input type="number" id="limit" placeholder="Limit Bulanan Rp" class="border p-2 rounded w-full sm:w-auto"/>
         </div>
-        <div class="flex gap-2 mt-3">
-          <button onclick="simpanLimit()" class="bg-[#20bf55] hover:bg-[#20b5a7] text-white px-4 py-2 rounded w-full sm:w-auto">Simpan</button>
+        <div class="flex gap-2 mt-4">
+          <button onclick="simpanLimit()" class="bg-[#20bf55] hover:bg-[#2EC4B6] text-white px-4 py-2 rounded w-full sm:w-auto">Simpan</button>
           <button onclick="kirimEmail()" class="bg-[#FF9F1C] hover:bg-[#FFBF69] text-white px-4 py-2 rounded w-full sm:w-auto">Kirim ke Email</button>
         </div>
       </div>
 
       <!-- Form -->
-      <div class="bg-white shadow rounded-lg p-4 border-t-4 border-[#6A5ACD]">
-        <h2 class="font-semibold mb-3 text-[#6A5ACD] flex items-center gap-2">🧾 Form Pengeluaran</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+      <div class="bg-white shadow-md hover:shadow-xl rounded-xl p-5 border-t-4 border-[#6A5ACD] transition">
+        <h2 class="font-semibold mb-3 text-[#6A5ACD] flex items-center gap-2 text-lg">🧾 Form Pengeluaran</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
           <input type="date" id="tanggal" class="border p-2 rounded"/>
           <select id="kategori" class="border p-2 rounded">
             <option value="food & beverages">Food & Beverages</option>
@@ -95,7 +97,7 @@
             <option value="groceries">Groceries</option>
           </select>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
           <input type="text" id="catatan" placeholder="Catatan" class="border p-2 rounded"/>
           <input type="number" id="nominal" placeholder="Jumlah Rp" class="border p-2 rounded"/>
         </div>
@@ -104,7 +106,7 @@
     </div>
 
     <!-- Riwayat -->
-    <div class="bg-white shadow rounded-lg p-4 border-t-4 border-[#1B2A2A]">
+    <div class="bg-white shadow-md hover:shadow-xl transition rounded-xl p-5 border-t-4 border-[#1B2A2A]">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
         <div class="flex items-center gap-2">
           <label for="filterBulan" class="font-medium text-gray-700"> Pilih Bulan:</label>
@@ -138,12 +140,12 @@
     </div>
   </div>
 
-  <!-- Firebase & Logic -->
+  <!-- Firebase & Logic tetap sama -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
+    
     const firebaseConfig = {
       apiKey: "AIzaSyDlTuRouYleRsIqY1e0dVs0DdUn9vpGsaw",
       authDomain: "pengeluaran-83a36.firebaseapp.com",
@@ -208,14 +210,7 @@
       const nominal = parseInt(document.getElementById("nominal").value);
       if (!tanggal || !nominal) return alert("Tanggal & nominal wajib diisi");
 
-      const data = {
-        uid: auth.currentUser.uid,
-        tanggal,
-        kategori,
-        catatan,
-        nominal,
-        createdAt: new Date(),
-      };
+      const data = { uid: auth.currentUser.uid, tanggal, kategori, catatan, nominal, createdAt: new Date() };
 
       if (pengeluaranEditId) {
         await setDoc(doc(db, "pengeluaran", pengeluaranEditId), data);
@@ -292,11 +287,4 @@
     }
 
     document.getElementById("sortOrder").addEventListener("change", loadPengeluaran);
-    document.getElementById("filterBulan").addEventListener("change", () => {
-      document.getElementById("bulan").value = document.getElementById("filterBulan").value;
-      loadRingkasan();
-      loadPengeluaran();
-    });
-  </script>
-</body>
-</html>
+    document.getElementById("filterBulan
