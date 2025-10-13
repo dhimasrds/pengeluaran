@@ -284,3 +284,13 @@
         </tr>`).join("");
       document.getElementById("tabelPengeluaran").innerHTML = rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
     }
+
+    document.getElementById("sortOrder").addEventListener("change", loadPengeluaran);
+    document.getElementById("filterBulan").addEventListener("change", () => {
+      document.getElementById("bulan").value = document.getElementById("filterBulan").value;
+      loadRingkasan();
+      loadPengeluaran();
+    });
+  </script>
+</body>
+</html>
