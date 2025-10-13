@@ -12,275 +12,290 @@
     })();
   </script>
 </head>
-<body class="bg-[#FFF9E5] min-h-screen p-4 sm:p-6 font-sans">
+<body class="bg-[#F0F4F8] min-h-screen p-4 sm:p-6 font-sans">
 
-  <!-- Login -->
-  <div id="login-section" class="max-w-md mx-auto bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] p-6 rounded-xl border-t-4 border-[#1B2A2A] mt-10">
-    <h2 class="text-xl font-bold mb-4 text-center text-[#1B2A2A]">Login</h2>
-    <input type="email" id="email" placeholder="Email" class="border p-2 mb-2 w-full rounded"/>
-    <input type="password" id="password" placeholder="Password" class="border p-2 mb-4 w-full rounded"/>
-    <button onclick="login()" class="bg-[#1B2A2A] hover:bg-[#20bf55] text-white font-semibold px-4 py-2 rounded w-full">Masuk</button>
+<!-- Login -->
+<div id="login-section" class="max-w-md mx-auto bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] p-6 rounded-xl border-t-4 border-[#1B2A2A] mt-10">
+  <h2 class="text-xl font-bold mb-4 text-center text-[#1B2A2A]">Login</h2>
+  <input type="email" id="email" placeholder="Email" class="border p-2 mb-2 w-full rounded"/>
+  <input type="password" id="password" placeholder="Password" class="border p-2 mb-4 w-full rounded"/>
+  <button onclick="login()" class="bg-[#1B2A2A] hover:bg-[#20bf55] text-white font-semibold px-4 py-2 rounded w-full">Masuk</button>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" style="display:none;" class="max-w-7xl mx-auto mt-8">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+    <h1 class="text-2xl font-bold text-[#1B2A2A] flex items-center gap-2">
+      <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png" alt="logo" class="w-7 h-7">
+      Rekap Pengeluaran Bulanan
+    </h1>
+    <div class="flex items-center gap-3">
+      <span id="userEmail" class="text-gray-700 text-sm sm:text-base"></span>
+      <button onclick="logout()" class="bg-[#F44336] hover:bg-[#E53935] text-white px-4 py-2 rounded shadow-sm">Keluar</button>
+    </div>
   </div>
 
-  <!-- Dashboard -->
-  <div id="dashboard" style="display:none;" class="max-w-7xl mx-auto mt-8">
+  <!-- Ringkasan -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
 
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-      <h1 class="text-2xl font-bold text-[#1B2A2A] flex items-center gap-2">
-        <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png" alt="logo" class="w-7 h-7">
-        Rekap Pengeluaran Bulanan
-      </h1>
+    <!-- Total Pengeluaran -->
+    <div class="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)] p-5 border-l-4 border-[#F44336] flex flex-col gap-3">
       <div class="flex items-center gap-3">
-        <span id="userEmail" class="text-gray-700 text-sm sm:text-base"></span>
-        <button onclick="logout()" class="bg-[#F44336] hover:bg-[#E53935] text-white px-4 py-2 rounded shadow-sm">Keluar</button>
-      </div>
-    </div>
-
-    <!-- Ringkasan -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-      <!-- Total Pengeluaran -->
-      <div class="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)] p-5 border-l-4 border-[#F44336]">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-gray-600 text-sm font-medium">Total Pengeluaran</p>
-          <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png" alt="pie chart" class="w-8 h-8">
-        </div>
+        <img src="src/img_1.png" alt="pie chart" class="w-8 h-8">        <div>
+        <p class="text-gray-600 text-sm font-medium">Total Pengeluaran</p>
         <p id="totalPengeluaran" class="text-2xl font-bold text-[#F44336]">Rp0</p>
       </div>
-
-      <!-- Sisa Limit -->
-      <div class="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)] p-5 border-l-4 border-[#2EC4B6]">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-gray-600 text-sm font-medium">Sisa Limit</p>
-          <img src="https://cdn-icons-png.flaticon.com/512/2920/2920341.png" alt="monitor uang" class="w-8 h-8">
-        </div>
-        <p id="sisaLimit" class="text-2xl font-bold text-[#1B2A2A]">-</p>
-        <div class="mt-3 w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-          <div id="progressBar" class="bg-[#2EC4B6] h-2.5 rounded-full transition-all duration-300" style="width: 0%;"></div>
-        </div>
       </div>
+    </div>
 
-      <!-- Utilisasi -->
-      <div class="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)] p-5 border-l-4 border-[#FF9F1C]">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-gray-600 text-sm font-medium">Utilisasi</p>
-          <img src="https://cdn-icons-png.flaticon.com/512/4332/4332857.png" alt="jam tangan" class="w-8 h-8">
-        </div>
+    <!-- Sisa Limit -->
+    <div class="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)] p-5 border-l-4 border-[#2EC4B6] flex flex-col gap-3">
+      <div class="flex items-center gap-3">
+        <img src="src/img_2.png" alt="pie chart" class="w-8 h-8">        <div class="flex-1">
+        <p class="text-gray-600 text-sm font-medium">Sisa Limit</p>
+        <p id="sisaLimit" class="text-2xl font-bold text-[#1B2A2A]">-</p>
+      </div>
+      </div>
+      <div class="mt-2 w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+        <div id="progressBar" class="bg-[#2EC4B6] h-2.5 rounded-full transition-all duration-300" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <!-- Utilisasi -->
+    <div class="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)] p-5 border-l-4 border-[#FF9F1C] flex flex-col gap-3">
+      <div class="flex items-center gap-3">
+        <img src="src/img.png" alt="pie chart" class="w-8 h-8">        <div>
+        <p class="text-gray-600 text-sm font-medium">Utilisasi</p>
         <p id="utilisasi" class="text-2xl font-bold text-[#FF9F1C]">0%</p>
       </div>
-    </div>
-
-    <!-- Limit & Form -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-      <!-- Limit -->
-      <div class="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-xl p-5 border-t-4 border-[#1B2A2A]">
-        <h2 class="font-semibold mb-3 text-[#1B2A2A] flex items-center gap-2 text-lg">🗓️ Atur Limit Bulanan</h2>
-        <div class="flex flex-col sm:flex-row gap-2">
-          <input type="month" id="bulan" class="border p-2 rounded w-full sm:w-auto"/>
-          <input type="number" id="limit" placeholder="Limit Bulanan Rp" class="border p-2 rounded w-full sm:w-auto"/>
-        </div>
-        <div class="flex gap-2 mt-4">
-          <button onclick="simpanLimit()" class="bg-[#2EC4B6] hover:bg-[#20bf55] text-white px-4 py-2 rounded w-full sm:w-auto shadow">Simpan</button>
-          <button onclick="kirimEmail()" class="bg-[#FF9F1C] hover:bg-[#FFBF69] text-white px-4 py-2 rounded w-full sm:w-auto shadow">Kirim ke Email</button>
-        </div>
-      </div>
-
-      <!-- Form -->
-      <div class="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-xl p-5 border-t-4 border-[#6A5ACD]">
-        <h2 class="font-semibold mb-3 text-[#6A5ACD] flex items-center gap-2 text-lg">🧾 Form Pengeluaran</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
-          <input type="date" id="tanggal" class="border p-2 rounded"/>
-          <select id="kategori" class="border p-2 rounded">
-            <option value="food & beverages">Food & Beverages</option>
-            <option value="entertainment">Entertainment</option>
-            <option value="groceries">Groceries</option>
-          </select>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-          <input type="text" id="catatan" placeholder="Catatan" class="border p-2 rounded"/>
-          <input type="number" id="nominal" placeholder="Jumlah Rp" class="border p-2 rounded"/>
-        </div>
-        <button id="btnSimpan" onclick="simpanPengeluaran()" class="bg-[#6A5ACD] hover:bg-[#FFBF69] text-white px-4 py-2 rounded w-full sm:w-auto shadow">Tambah</button>
       </div>
     </div>
 
-    <!-- Riwayat -->
-    <div class="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-xl p-5 border-t-4 border-[#1B2A2A] mb-10">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
-        <div class="flex items-center gap-2">
-          <label for="filterBulan" class="font-medium text-gray-700"> Pilih Bulan:</label>
-          <input type="month" id="filterBulan" class="border p-2 rounded"/>
-        </div>
-        <div class="flex items-center gap-2">
-          <label class="font-medium text-gray-700">Urutkan:</label>
-          <select id="sortOrder" class="border p-2 rounded">
-            <option value="desc">Tanggal (Terbaru)</option>
-            <option value="asc">Tanggal (Terlama)</option>
-          </select>
-        </div>
-      </div>
+  </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full border-collapse text-sm sm:text-base">
-          <thead>
-            <tr class="bg-[#F0F4F8] text-gray-700">
-              <th class="border p-2">Tanggal</th>
-              <th class="border p-2">Kategori</th>
-              <th class="border p-2">Catatan</th>
-              <th class="border p-2">Jumlah (Rp)</th>
-              <th class="border p-2">Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="tabelPengeluaran">
-            <tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>
-          </tbody>
-        </table>
+  <!-- Limit & Form -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+    <!-- Limit -->
+    <div class="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-xl p-5 border-t-4 border-[#1B2A2A]">
+      <h2 class="font-semibold mb-3 text-[#1B2A2A] flex items-center gap-2 text-lg">🗓️ Atur Limit Bulanan</h2>
+      <div class="flex flex-col sm:flex-row gap-2">
+        <input type="month" id="bulan" class="border p-2 rounded w-full sm:w-auto"/>
+        <input type="number" id="limit" placeholder="Limit Bulanan Rp" class="border p-2 rounded w-full sm:w-auto"/>
       </div>
+      <div class="flex gap-2 mt-4">
+        <button onclick="simpanLimit()" class="bg-[#2EC4B6] hover:bg-[#20bf55] text-white px-4 py-2 rounded w-full sm:w-auto shadow">Simpan</button>
+        <button onclick="kirimEmail()" class="bg-[#FF9F1C] hover:bg-[#FFBF69] text-white px-4 py-2 rounded w-full sm:w-auto shadow">Kirim ke Email</button>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-xl p-5 border-t-4 border-[#6A5ACD]">
+      <h2 class="font-semibold mb-3 text-[#6A5ACD] flex items-center gap-2 text-lg">🧾 Form Pengeluaran</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
+        <input type="date" id="tanggal" class="border p-2 rounded"/>
+        <select id="kategori" class="border p-2 rounded">
+          <option value="food & beverages">Food & Beverages</option>
+          <option value="entertainment">Entertainment</option>
+          <option value="groceries">Groceries</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        <input type="text" id="catatan" placeholder="Catatan" class="border p-2 rounded"/>
+        <input type="number" id="nominal" placeholder="Jumlah Rp" class="border p-2 rounded"/>
+      </div>
+      <button id="btnSimpan" onclick="simpanPengeluaran()" class="bg-[#6A5ACD] hover:bg-[#FFBF69] text-white px-4 py-2 rounded w-full sm:w-auto shadow">Tambah</button>
     </div>
   </div>
 
-  <!-- Firebase & Logic tetap sama -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  <!-- Riwayat -->
+  <div class="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-xl p-5 border-t-4 border-[#1B2A2A] mb-10">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+      <div class="flex items-center gap-2">
+        <label for="filterBulan" class="font-medium text-gray-700"> Pilih Bulan:</label>
+        <input type="month" id="filterBulan" class="border p-2 rounded"/>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="font-medium text-gray-700">Urutkan:</label>
+        <select id="sortOrder" class="border p-2 rounded">
+          <option value="desc">Tanggal (Terbaru)</option>
+          <option value="asc">Tanggal (Terlama)</option>
+        </select>
+      </div>
+    </div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDlTuRouYleRsIqY1e0dVs0DdUn9vpGsaw",
-      authDomain: "pengeluaran-83a36.firebaseapp.com",
-      projectId: "pengeluaran-83a36",
-      storageBucket: "pengeluaran-83a36.firebasestorage.app",
-      messagingSenderId: "1092761187117",
-      appId: "1:1092761187117:web:0acba9a85b81f1b0c9d9a4",
-      measurementId: "G-LKF5YFEC8P"
-    };
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse text-sm sm:text-base">
+        <thead>
+        <tr class="bg-[#F0F4F8] text-gray-700">
+          <th class="border p-2">Tanggal</th>
+          <th class="border p-2">Kategori</th>
+          <th class="border p-2">Catatan</th>
+          <th class="border p-2">Jumlah (Rp)</th>
+          <th class="border p-2">Aksi</th>
+        </tr>
+        </thead>
+        <tbody id="tabelPengeluaran">
+        <tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    let pengeluaranEditId = null;
+<!-- Firebase & Logic (tidak diubah) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    async function getLimit(bulan) {
-      const uid = auth.currentUser.uid;
-      const q = query(collection(db, "limits"), where("uid", "==", uid), where("bulan", "==", bulan));
-      const snap = await getDocs(q);
-      if (!snap.empty) return snap.docs[0].data().limit;
-      return 0;
-    }
+  const firebaseConfig = {
+    apiKey: "AIzaSyDlTuRouYleRsIqY1e0dVs0DdUn9vpGsaw",
+    authDomain: "pengeluaran-83a36.firebaseapp.com",
+    projectId: "pengeluaran-83a36",
+    storageBucket: "pengeluaran-83a36.firebasestorage.app",
+    messagingSenderId: "1092761187117",
+    appId: "1:1092761187117:web:0acba9a85b81f1b0c9d9a4",
+    measurementId: "G-LKF5YFEC8P"
+  };
 
-    window.login = async function () {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        document.getElementById("login-section").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-        document.getElementById("userEmail").innerText = auth.currentUser.email;
-        const bulanNow = new Date().toISOString().slice(0, 7);
-        document.getElementById("bulan").value = bulanNow;
-        document.getElementById("filterBulan").value = bulanNow;
-        document.getElementById("tanggal").value = new Date().toISOString().split("T")[0];
-        loadRingkasan();
-        loadPengeluaran();
-      } catch (err) {
-        alert("Login gagal: " + err.message);
-      }
-    };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  let pengeluaranEditId = null;
 
-    window.logout = async function () {
-      await signOut(auth);
-      document.getElementById("login-section").style.display = "block";
-      document.getElementById("dashboard").style.display = "none";
-    };
+  async function getLimit(bulan) {
+    const uid = auth.currentUser.uid;
+    const q = query(collection(db, "limits"), where("uid", "==", uid), where("bulan", "==", bulan));
+    const snap = await getDocs(q);
+    if (!snap.empty) return snap.docs[0].data().limit;
+    return 0;
+  }
 
-    window.simpanLimit = async function () {
-      const bulan = document.getElementById("bulan").value;
-      const limit = parseInt(document.getElementById("limit").value);
-      if (!bulan || !limit) return alert("Isi bulan dan limit!");
-      const uid = auth.currentUser.uid;
-      await setDoc(doc(db, "limits", uid + "_" + bulan), { uid, bulan, limit });
-      loadRingkasan();
-    };
-
-    window.simpanPengeluaran = async function () {
-      const tanggal = document.getElementById("tanggal").value;
-      const kategori = document.getElementById("kategori").value;
-      const catatan = document.getElementById("catatan").value;
-      const nominal = parseInt(document.getElementById("nominal").value);
-      if (!tanggal || !nominal) return alert("Tanggal & nominal wajib diisi");
-
-      const data = { uid: auth.currentUser.uid, tanggal, kategori, catatan, nominal, createdAt: new Date() };
-
-      if (pengeluaranEditId) {
-        await setDoc(doc(db, "pengeluaran", pengeluaranEditId), data);
-        pengeluaranEditId = null;
-        document.getElementById("btnSimpan").innerText = "Tambah";
-      } else {
-        await addDoc(collection(db, "pengeluaran"), data);
-      }
-
-      document.getElementById("catatan").value = "";
-      document.getElementById("nominal").value = "";
+  window.login = async function () {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+      document.getElementById("userEmail").innerText = auth.currentUser.email;
+      const bulanNow = new Date().toISOString().slice(0, 7);
+      document.getElementById("bulan").value = bulanNow;
+      document.getElementById("filterBulan").value = bulanNow;
+      document.getElementById("tanggal").value = new Date().toISOString().split("T")[0];
       loadRingkasan();
       loadPengeluaran();
-    };
+    } catch (err) {
+      alert("Login gagal: " + err.message);
+    }
+  };
 
-    window.editPengeluaran = function(id, tanggal, kategori, catatan, nominal) {
-      document.getElementById("tanggal").value = tanggal;
-      document.getElementById("kategori").value = kategori;
-      document.getElementById("catatan").value = catatan;
-      document.getElementById("nominal").value = nominal;
-      pengeluaranEditId = id;
-      document.getElementById("btnSimpan").innerText = "Update";
-    };
+  window.logout = async function () {
+    await signOut(auth);
+    document.getElementById("login-section").style.display = "block";
+    document.getElementById("dashboard").style.display = "none";
+  };
 
-    window.hapusPengeluaran = async function(id) {
-      if (confirm("Yakin ingin menghapus pengeluaran ini?")) {
-        await deleteDoc(doc(db, "pengeluaran", id));
-        loadRingkasan();
-        loadPengeluaran();
-      }
-    };
+  window.simpanLimit = async function () {
+    const bulan = document.getElementById("bulan").value;
+    const limit = parseInt(document.getElementById("limit").value);
+    if (!bulan || !limit) return alert("Isi bulan dan limit!");
+    const uid = auth.currentUser.uid;
+    await setDoc(doc(db, "limits", uid + "_" + bulan), { uid, bulan, limit });
+    loadRingkasan();
+  };
 
-    async function loadRingkasan() {
-      const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
-      const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
-      const snap = await getDocs(q);
-      let total = 0;
-      snap.forEach((d) => {
-        const p = d.data();
-        if (p.tanggal.startsWith(bulan)) total += p.nominal;
-      });
-      const limit = await getLimit(bulan);
-      const sisa = limit ? limit - total : "-";
-      const util = limit ? ((total / limit) * 100).toFixed(1) : "0";
-      document.getElementById("totalPengeluaran").innerText = "Rp" + total.toLocaleString();
-      document.getElementById("sisaLimit").innerText = limit ? "Rp" + sisa.toLocaleString() : "-";
-      document.getElementById("utilisasi").innerText = util + "%";
-      document.getElementById("progressBar").style.width = util + "%";
+  window.simpanPengeluaran = async function () {
+    const tanggal = document.getElementById("tanggal").value;
+    const kategori = document.getElementById("kategori").value;
+    const catatan = document.getElementById("catatan").value;
+    const nominal = parseInt(document.getElementById("nominal").value);
+    if (!tanggal || !nominal) return alert("Tanggal & nominal wajib diisi");
+
+    const data = { uid: auth.currentUser.uid, tanggal, kategori, catatan, nominal, createdAt: new Date() };
+
+    if (pengeluaranEditId) {
+      await setDoc(doc(db, "pengeluaran", pengeluaranEditId), data);
+      pengeluaranEditId = null;
+      document.getElementById("btnSimpan").innerText = "Tambah";
+    } else {
+      await addDoc(collection(db, "pengeluaran"), data);
     }
 
-    async function loadPengeluaran() {
-      const bulan = document.getElementById("filterBulan").value || new Date().toISOString().slice(0, 7);
-      const sortOrder = document.getElementById("sortOrder").value;
-      const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
-      const snap = await getDocs(q);
-      let data = [];
-      snap.forEach((d) => {
-        const p = d.data();
-        if (p.tanggal.startsWith(bulan)) data.push({ id: d.id, ...p });
-      });
-      data.sort((a,b) => sortOrder === "desc" ? b.tanggal.localeCompare(a.tanggal) : a.tanggal.localeCompare(b.tanggal));
-      const rows = data.map(p => `
-        <tr>
-          <td class="border p-2">${p.tanggal}</td>
-          <td class="border p-2">${p.kategori}</td>
-          <td class="border p-2">${p.catatan || "-"}</td>
-          <td class="border p-2">Rp${p.nominal.toLocaleString()}</td>
-          <td class="border p-2 text-center">
-            <span class="text-[#1B2A2A] cursor-pointer" onclick="editPengeluaran('${p.id}', '${p.tanggal}', '${p.kategori}', '${p.catatan}', ${p.nominal})">Edit</span>
-            <span class="text-red-500 cursor-pointer ml-2" onclick="hapusPengeluaran('${p.id}')">Hapus</span>
-          </td>
-        </tr>`).join("");
-      document.getElementById("tabelPengeluaran").innerHTML = rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
+    document.getElementById("catatan").value = "";
+    document.getElementById("nominal").value = "";
+    loadRingkasan();
+    loadPengeluaran();
+  };
+
+  window.editPengeluaran = function(id, tanggal, kategori, catatan, nominal) {
+    document.getElementById("tanggal").value = tanggal;
+    document.getElementById("kategori").value = kategori;
+    document.getElementById("catatan").value = catatan;
+    document.getElementById("nominal").value = nominal;
+    pengeluaranEditId = id;
+    document.getElementById("btnSimpan").innerText = "Update";
+  };
+
+  window.hapusPengeluaran = async function(id) {
+    if (confirm("Yakin ingin menghapus pengeluaran ini?")) {
+      await deleteDoc(doc(db, "pengeluaran", id));
+      loadRingkasan();
+      loadPengeluaran();
     }
+  };
+
+  async function loadRingkasan() {
+    const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
+    const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
+    const snap = await getDocs(q);
+    let total = 0;
+    snap.forEach((d) => {
+      const p = d.data();
+      if (p.tanggal.startsWith(bulan)) total += p.nominal;
+    });
+    const limit = await getLimit(bulan);
+    const sisa = limit ? limit - total : "-";
+    const util = limit ? ((total / limit) * 100).toFixed(1) : "0";
+    document.getElementById("totalPengeluaran").innerText = "Rp" + total.toLocaleString();
+    document.getElementById("sisaLimit").innerText = limit ? "Rp" + sisa.toLocaleString() : "-";
+    document.getElementById("utilisasi").innerText = util + "%";
+    document.getElementById("progressBar").style.width = util + "%";
+  }
+
+  async function loadPengeluaran() {
+    const bulan = document.getElementById("filterBulan").value || new Date().toISOString().slice(0, 7);
+    const sortOrder = document.getElementById("sortOrder").value;
+    const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
+    const snap = await getDocs(q);
+    let data = [];
+    snap.forEach((d) => {
+      const p = d.data();
+      if (p.tanggal.startsWith(bulan)) data.push({ id: d.id, ...p });
+    });
+    data.sort((a,b) => sortOrder === "desc" ? b.tanggal.localeCompare(a.tanggal) : a.tanggal.localeCompare(b.tanggal));
+    const rows = data.map(p => `
+      <tr>
+        <td class="border p-2">${p.tanggal}</td>
+        <td class="border p-2">${p.kategori}</td>
+        <td class="border p-2">${p.catatan || "-"}</td>
+        <td class="border p-2">Rp${p.nominal.toLocaleString()}</td>
+        <td class="border p-2 text-center">
+          <span class="text-[#1B2A2A] cursor-pointer" onclick="editPengeluaran('${p.id}', '${p.tanggal}', '${p.kategori}', '${p.catatan}', ${p.nominal})">Edit</span>
+          <span class="text-red-500 cursor-pointer ml-2" onclick="hapusPengeluaran('${p.id}')">Hapus</span>
+        </td>
+      </tr>`).join("");
+    document.getElementById("tabelPengeluaran").innerHTML = rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
+  }
+
+  document.getElementById("sortOrder").addEventListener("change", loadPengeluaran);
+  document.getElementById("filterBulan").addEventListener("change", () => {
+    document.getElementById("bulan").value = document.getElementById("filterBulan").value;
+    loadRingkasan();
+    loadPengeluaran();
+  });
+</script>
+</body>
+</html>
