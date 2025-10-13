@@ -208,44 +208,49 @@
   };
 
   window.kirimEmail = async function () {
-    const bulan = document.getElementById("filterBulan").value || new Date().toISOString().slice(0, 7);
-    const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
-    const snap = await getDocs(q);
-    let data = [];
-    let total = 0;
-    snap.forEach((d) => {
-      const p = d.data();
-      if (p.tanggal.startsWith(bulan)) {
-        data.push(p);
-        total += p.nominal;
+      const bulanStr = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
+      const bulanFormatted = formatBulan(bulanStr);
+      const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
+      const snap = await getDocs(q);
+
+      let csv = "Tanggal,Kategori,Catatan,Nominal\n";
+      let htmlRows = "";
+      snap.forEach((d) => {
+        const p = d.data();
+        if (p.tanggal.startsWith(bulanStr)) {
+          csv += `${p.tanggal},${p.kategori},${p.catatan},${p.nominal}\n`;
+          htmlRows += `
+            <tr>
+              <td style="border:1px solid #ccc;padding:8px;">${p.tanggal}</td>
+              <td style="border:1px solid #ccc;padding:8px;">${p.kategori}</td>
+              <td style="border:1px solid #ccc;padding:8px;">${p.catatan || "-"}</td>
+              <td style="border:1px solid #ccc;padding:8px;">Rp${p.nominal.toLocaleString()}</td>
+            </tr>`;
+        }
+      });
+
+      if (csv === "Tanggal,Kategori,Catatan,Nominal\n") {
+        alert("Tidak ada data pengeluaran bulan ini.");
+        return;
       }
-    });
 
-    if (data.length === 0) return alert("Tidak ada data untuk dikirim");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const csvUrl = URL.createObjectURL(blob);
 
-    const limit = await getLimit(bulan);
-    const sisa = limit ? limit - total : 0;
-    const util = limit ? ((total / limit) * 100).toFixed(1) : "0";
+      const params = {
+        to_email: auth.currentUser.email,
+        bulan: bulanFormatted,
+        rows_html: htmlRows,
+        csv_url: csvUrl
+      };
 
-    let rincian = data.map(p => `${p.tanggal} | ${p.kategori} | ${p.catatan || "-"} | Rp${p.nominal.toLocaleString()}`).join("\n");
-
-    const templateParams = {
-      to_email: auth.currentUser.email,
-      bulan: bulan,
-      total: "Rp" + total.toLocaleString(),
-      limit: limit ? "Rp" + limit.toLocaleString() : "-",
-      sisa: limit ? "Rp" + sisa.toLocaleString() : "-",
-      utilisasi: util + "%",
-      rincian: rincian
+      emailjs.send("gmailKU", "template_n1lowek", params)
+        .then(() => {
+          alert("Laporan berhasil dikirim ke email Anda (dengan link CSV).");
+        }, (error) => {
+          alert("Gagal mengirim email: " + JSON.stringify(error));
+        });
     };
-
-    try {
-      await emailjs.send("service_hhg9fso", "template_pc73k0a", templateParams);
-      alert("Email berhasil dikirim ke " + auth.currentUser.email);
-    } catch (err) {
-      alert("Gagal mengirim email: " + err.message);
-    }
-  };
 
   window.simpanPengeluaran = async function () {
     const tanggal = document.getElementById("tanggal").value;
