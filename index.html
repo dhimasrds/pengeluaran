@@ -38,18 +38,20 @@
 
     <!-- Ringkasan -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <!-- Total Pengeluaran -->
       <div class="bg-white rounded-lg shadow p-4 border-l-4 border-[#F44336]">
         <div class="flex items-center justify-between mb-2">
           <p class="text-gray-500 text-sm">Total Pengeluaran</p>
-          <span class="text-[#F44336]">💰</span>
+          <img src="https://cdn-icons-png.flaticon.com/512/10080/10080680.png" alt="Pie Chart Icon" class="w-8 h-8">
         </div>
         <p id="totalPengeluaran" class="text-xl font-bold text-[#F44336]">Rp0</p>
       </div>
 
+      <!-- Sisa Limit -->
       <div class="bg-white rounded-lg shadow p-4 border-l-4 border-[#20bf55]">
         <div class="flex items-center justify-between mb-2">
           <p class="text-gray-500 text-sm">Sisa Limit</p>
-          <span class="text-[#20bf55]">💳</span>
+          <img src="https://cdn-icons-png.flaticon.com/512/7066/7066126.png" alt="Money Monitor Icon" class="w-8 h-8">
         </div>
         <p id="sisaLimit" class="text-xl font-bold text-[#1B2A2A]">-</p>
         <div class="mt-2 w-full bg-gray-200 rounded-full h-2.5">
@@ -57,10 +59,11 @@
         </div>
       </div>
 
+      <!-- Utilisasi -->
       <div class="bg-white rounded-lg shadow p-4 border-l-4 border-[#FF9F1C]">
         <div class="flex items-center justify-between mb-2">
           <p class="text-gray-500 text-sm">Utilisasi</p>
-          <span class="text-[#FF9F1C]">📈</span>
+          <img src="https://cdn-icons-png.flaticon.com/512/8685/8685159.png" alt="Time Icon" class="w-8 h-8">
         </div>
         <p id="utilisasi" class="text-xl font-bold text-[#FF9F1C]">0%</p>
       </div>
@@ -135,7 +138,7 @@
     </div>
   </div>
 
-  <!-- Firebase & Logic (tetap sama) -->
+  <!-- Firebase & Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
