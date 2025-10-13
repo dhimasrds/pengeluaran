@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rekap Pengeluaran Bulanan</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- EmailJS -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script>
     (function(){
@@ -14,84 +12,107 @@
     })();
   </script>
 </head>
-<body class="bg-gray-50 min-h-screen p-4 sm:p-6">
+<body class="bg-[#FFF9E5] min-h-screen p-4 sm:p-6">
 
   <!-- Login -->
-  <div id="login-section" class="max-w-md mx-auto bg-white shadow p-6 rounded">
-    <h2 class="text-xl font-bold mb-4 text-center">Login</h2>
+  <div id="login-section" class="max-w-md mx-auto bg-white shadow-lg p-6 rounded-lg">
+    <h2 class="text-xl font-bold mb-4 text-center text-gray-800">Login</h2>
     <input type="email" id="email" placeholder="Email" class="border p-2 mb-2 w-full rounded"/>
     <input type="password" id="password" placeholder="Password" class="border p-2 mb-4 w-full rounded"/>
-    <button onclick="login()" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Login</button>
+    <button onclick="login()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded w-full">Login</button>
   </div>
 
   <!-- Dashboard -->
-  <div id="dashboard" style="display:none;" class="max-w-6xl mx-auto">
+  <div id="dashboard" style="display:none;" class="max-w-7xl mx-auto">
+    <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-      <h1 class="text-2xl font-bold">Rekap Pengeluaran Bulanan</h1>
-      <div class="flex items-center gap-2">
+      <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <span>📊</span> Rekap Pengeluaran Bulanan
+      </h1>
+      <div class="flex items-center gap-3">
         <span id="userEmail" class="text-gray-700 text-sm sm:text-base"></span>
-        <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded w-full sm:w-auto">Keluar</button>
+        <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Keluar</button>
       </div>
     </div>
 
     <!-- Ringkasan -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-      <div class="bg-white shadow rounded p-4 text-center">
-        <p class="text-gray-500 text-sm">Total Pengeluaran</p>
-        <p id="totalPengeluaran" class="text-lg font-bold">Rp0</p>
+      <div class="bg-white shadow rounded-lg p-4">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-gray-500 text-sm">Total Pengeluaran</p>
+          <span>💰</span>
+        </div>
+        <p id="totalPengeluaran" class="text-xl font-bold text-red-600">Rp0</p>
       </div>
-      <div class="bg-white shadow rounded p-4 text-center">
-        <p class="text-gray-500 text-sm">Sisa Limit</p>
-        <p id="sisaLimit" class="text-lg font-bold">-</p>
+      <div class="bg-white shadow rounded-lg p-4">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-gray-500 text-sm">Sisa Limit</p>
+          <span>📗</span>
+        </div>
+        <p id="sisaLimit" class="text-xl font-bold text-green-600">-</p>
+        <div class="mt-2 w-full bg-gray-200 rounded-full h-2.5">
+          <div id="progressBar" class="bg-green-500 h-2.5 rounded-full" style="width: 0%;"></div>
+        </div>
       </div>
-      <div class="bg-white shadow rounded p-4 text-center">
-        <p class="text-gray-500 text-sm">Utilisasi</p>
-        <p id="utilisasi" class="text-lg font-bold">0%</p>
+      <div class="bg-white shadow rounded-lg p-4">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-gray-500 text-sm">Utilisasi</p>
+          <span>📈</span>
+        </div>
+        <p id="utilisasi" class="text-xl font-bold text-yellow-600">0%</p>
       </div>
     </div>
 
-    <!-- Limit Bulanan -->
-    <div class="bg-white shadow rounded p-4 mb-6">
-      <h2 class="font-semibold mb-2">Atur Limit Bulanan</h2>
-      <div class="flex flex-col sm:flex-row gap-2">
-        <input type="month" id="bulan" class="border p-2 rounded w-full sm:w-auto"/>
-        <input type="number" id="limit" placeholder="Limit Bulanan Rp" class="border p-2 rounded w-full sm:w-auto"/>
-        <button onclick="simpanLimit()" class="bg-blue-600 text-white px-4 py-2 rounded w-full sm:w-auto">Simpan</button>
-        <button onclick="eksporCSV()" class="bg-gray-500 text-white px-4 py-2 rounded w-full sm:w-auto">Ekspor</button>
-        <button onclick="kirimEmail()" class="bg-green-600 text-white px-4 py-2 rounded w-full sm:w-auto">Kirim ke Email</button>
+    <!-- Limit & Form -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+      <!-- Limit -->
+      <div class="bg-white shadow rounded-lg p-4">
+        <h2 class="font-semibold mb-2 flex items-center gap-2 text-gray-700">
+          <span>🗓️</span> Atur Limit Bulanan
+        </h2>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input type="month" id="bulan" class="border p-2 rounded w-full sm:w-auto"/>
+          <input type="number" id="limit" placeholder="Limit Bulanan Rp" class="border p-2 rounded w-full sm:w-auto"/>
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button onclick="simpanLimit()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded w-full sm:w-auto">Simpan</button>
+          <button onclick="kirimEmail()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full sm:w-auto">Kirim ke Email</button>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="bg-white shadow rounded-lg p-4">
+        <h2 class="font-semibold mb-2 flex items-center gap-2 text-gray-700">
+          <span>🧾</span> Form Pengeluaran
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+          <input type="date" id="tanggal" class="border p-2 rounded"/>
+          <select id="kategori" class="border p-2 rounded">
+            <option value="food & beverages">Food & Beverages</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="groceries">Groceries</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+          <input type="text" id="catatan" placeholder="Catatan" class="border p-2 rounded"/>
+          <input type="number" id="nominal" placeholder="Jumlah Rp" class="border p-2 rounded"/>
+        </div>
+        <button id="btnSimpan" onclick="simpanPengeluaran()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded w-full sm:w-auto">Tambah</button>
       </div>
     </div>
 
-    <!-- Form Pengeluaran -->
-    <div class="bg-white shadow rounded p-4 mb-6">
-      <h2 class="font-semibold mb-2">Form Pengeluaran</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-2">
-        <input type="date" id="tanggal" class="border p-2 rounded"/>
-        <select id="kategori" class="border p-2 rounded">
-          <option value="food & beverages">Food & Beverages</option>
-          <option value="entertainment">Entertainment</option>
-          <option value="groceries">Groceries</option>
-        </select>
-        <input type="text" id="catatan" placeholder="Catatan" class="border p-2 rounded"/>
-        <input type="number" id="nominal" placeholder="Jumlah Rp" class="border p-2 rounded"/>
-      </div>
-      <button id="btnSimpan" onclick="simpanPengeluaran()" class="bg-blue-600 text-white px-4 py-2 rounded w-full sm:w-auto">Tambah</button>
-    </div>
-
-    <!-- Riwayat Pengeluaran -->
-    <div class="bg-white shadow rounded p-4">
+    <!-- Riwayat -->
+    <div class="bg-white shadow rounded-lg p-4">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
         <div class="flex items-center gap-2">
-          <label for="filterBulan" class="font-medium">Pilih Bulan:</label>
+          <label for="filterBulan" class="font-medium text-gray-700">Pilih Bulan:</label>
           <input type="month" id="filterBulan" class="border p-2 rounded"/>
         </div>
-        <div>
-          <select id="sortBy" class="border p-2 rounded text-sm">
-            <option value="date-desc" selected>Tanggal (Terbaru)</option>
-            <option value="date-asc">Tanggal (Terlama)</option>
-            <option value="amount-desc">Nominal (Terbesar)</option>
-            <option value="amount-asc">Nominal (Terkecil)</option>
-            <option value="category-asc">Kategori (A-Z)</option>
+        <div class="flex items-center gap-2">
+          <label class="font-medium text-gray-700">Urutkan:</label>
+          <select id="sortOrder" class="border p-2 rounded">
+            <option value="desc">Tanggal (Terbaru)</option>
+            <option value="asc">Tanggal (Terlama)</option>
           </select>
         </div>
       </div>
@@ -99,7 +120,7 @@
       <div class="overflow-x-auto">
         <table class="w-full border-collapse text-sm sm:text-base">
           <thead>
-            <tr class="bg-gray-100">
+            <tr class="bg-gray-100 text-gray-700">
               <th class="border p-2">Tanggal</th>
               <th class="border p-2">Kategori</th>
               <th class="border p-2">Catatan</th>
@@ -115,7 +136,7 @@
     </div>
   </div>
 
-  <!-- Firebase Script -->
+  <!-- Firebase & Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -142,7 +163,6 @@
       return date.toLocaleString("id-ID", { month: "long", year: "numeric" });
     }
 
-    // === LOGIN ===
     window.login = async function () {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
@@ -151,12 +171,10 @@
         document.getElementById("login-section").style.display = "none";
         document.getElementById("dashboard").style.display = "block";
         document.getElementById("userEmail").innerText = auth.currentUser.email;
-
         const bulanNow = new Date().toISOString().slice(0, 7);
         document.getElementById("bulan").value = bulanNow;
         document.getElementById("filterBulan").value = bulanNow;
         document.getElementById("tanggal").value = new Date().toISOString().split("T")[0];
-
         loadRingkasan();
         loadPengeluaran();
       } catch (err) {
@@ -170,7 +188,6 @@
       document.getElementById("dashboard").style.display = "none";
     };
 
-    // === RINGKASAN ===
     async function getLimit(bulan) {
       const uid = auth.currentUser.uid;
       const q = query(collection(db, "limits"), where("uid", "==", uid), where("bulan", "==", bulan));
@@ -179,28 +196,15 @@
       return 0;
     }
 
-    async function loadRingkasan() {
-      const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
-      document.getElementById("bulan").value = bulan;
-            const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
-      const snap = await getDocs(q);
+    window.simpanLimit = async function () {
+      const bulan = document.getElementById("bulan").value;
+      const limit = parseInt(document.getElementById("limit").value);
+      if (!bulan || !limit) return alert("Isi bulan dan limit!");
+      const uid = auth.currentUser.uid;
+      await setDoc(doc(db, "limits", uid + "_" + bulan), { uid, bulan, limit });
+      loadRingkasan();
+    };
 
-      let total = 0;
-      snap.forEach(d => {
-        const p = d.data();
-        if (p.tanggal.startsWith(bulan)) total += p.nominal;
-      });
-
-      const limit = await getLimit(bulan);
-      const sisa = limit ? limit - total : "-";
-      const util = limit ? ((total / limit) * 100).toFixed(1) : "0";
-
-      document.getElementById("totalPengeluaran").innerText = "Rp" + total.toLocaleString();
-      document.getElementById("sisaLimit").innerText = limit ? "Rp" + sisa.toLocaleString() : "-";
-      document.getElementById("utilisasi").innerText = util + "%";
-    }
-
-    // === PENGELUARAN ===
     window.simpanPengeluaran = async function () {
       const tanggal = document.getElementById("tanggal").value;
       const kategori = document.getElementById("kategori").value;
@@ -210,8 +214,11 @@
 
       const data = {
         uid: auth.currentUser.uid,
-        tanggal, kategori, catatan, nominal,
-        createdAt: new Date()
+        tanggal,
+        kategori,
+        catatan,
+        nominal,
+        createdAt: new Date(),
       };
 
       if (pengeluaranEditId) {
@@ -245,135 +252,55 @@
       }
     };
 
-    async function loadPengeluaran() {
-      const bulan = document.getElementById("filterBulan").value || new Date().toISOString().slice(0, 7);
-      const sortBy = document.getElementById("sortBy").value || "date-desc";
-
-      const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
-      const snap = await getDocs(q);
-
-      let data = [];
-      snap.forEach(d => {
-        const p = d.data();
-        p.id = d.id;
-        if (p.tanggal.startsWith(bulan)) data.push(p);
-      });
-
-      // Sorting
-      data.sort((a, b) => {
-        switch (sortBy) {
-          case "date-asc": return a.tanggal.localeCompare(b.tanggal);
-          case "date-desc": return b.tanggal.localeCompare(a.tanggal);
-          case "amount-asc": return a.nominal - b.nominal;
-          case "amount-desc": return b.nominal - a.nominal;
-          case "category-asc": return (a.kategori || "").localeCompare(b.kategori || "");
-          default: return 0;
-        }
-      });
-
-      let rows = "";
-      data.forEach(p => {
-        rows += `
-          <tr>
-            <td class="border p-2">${p.tanggal}</td>
-            <td class="border p-2">${p.kategori}</td>
-            <td class="border p-2">${p.catatan || "-"}</td>
-            <td class="border p-2">Rp${p.nominal.toLocaleString()}</td>
-            <td class="border p-2 space-x-2">
-              <span class="text-blue-500 cursor-pointer" onclick="editPengeluaran('${p.id}','${p.tanggal}','${p.kategori}','${p.catatan}',${p.nominal})">Edit</span>
-              <span class="text-red-500 cursor-pointer" onclick="hapusPengeluaran('${p.id}')">Hapus</span>
-            </td>
-          </tr>`;
-      });
-
-      document.getElementById("tabelPengeluaran").innerHTML =
-        rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
-    }
-
-    // === EKSPOR CSV & EMAIL ===
-    window.eksporCSV = async function () {
+    async function loadRingkasan() {
       const bulan = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
       const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
       const snap = await getDocs(q);
-      let csv = "Tanggal,Kategori,Catatan,Nominal\n";
-      snap.forEach(d => {
+      let total = 0;
+      snap.forEach((d) => {
         const p = d.data();
-        if (p.tanggal.startsWith(bulan)) csv += `${p.tanggal},${p.kategori},${p.catatan},${p.nominal}\n`;
+        if (p.tanggal.startsWith(bulan)) total += p.nominal;
       });
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `pengeluaran-${bulan}.csv`;
-      a.click();
-    };
+      const limit = await getLimit(bulan);
+      const sisa = limit ? limit - total : "-";
+      const util = limit ? ((total / limit) * 100).toFixed(1) : "0";
+      document.getElementById("totalPengeluaran").innerText = "Rp" + total.toLocaleString();
+      document.getElementById("sisaLimit").innerText = limit ? "Rp" + sisa.toLocaleString() : "-";
+      document.getElementById("utilisasi").innerText = util + "%";
+      document.getElementById("progressBar").style.width = util + "%";
+    }
 
-    window.kirimEmail = async function () {
-      const bulanStr = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
-      const bulanFormatted = formatBulan(bulanStr);
+    async function loadPengeluaran() {
+      const bulan = document.getElementById("filterBulan").value || new Date().toISOString().slice(0, 7);
+      const sortOrder = document.getElementById("sortOrder").value;
       const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
       const snap = await getDocs(q);
-
-      let csv = "Tanggal,Kategori,Catatan,Nominal\n";
-      let htmlRows = "";
-      snap.forEach(d => {
+      let data = [];
+      snap.forEach((d) => {
         const p = d.data();
-        if (p.tanggal.startsWith(bulanStr)) {
-          csv += `${p.tanggal},${p.kategori},${p.catatan},${p.nominal}\n`;
-          htmlRows += `
-            <tr>
-              <td style="border:1px solid #ccc;padding:8px;">${p.tanggal}</td>
-              <td style="border:1px solid #ccc;padding:8px;">${p.kategori}</td>
-              <td style="border:1px solid #ccc;padding:8px;">${p.catatan || "-"}</td>
-              <td style="border:1px solid #ccc;padding:8px;">Rp${p.nominal.toLocaleString()}</td>
-            </tr>`;
-        }
+        if (p.tanggal.startsWith(bulan)) data.push({ id: d.id, ...p });
       });
+      data.sort((a,b) => sortOrder === "desc" ? b.tanggal.localeCompare(a.tanggal) : a.tanggal.localeCompare(b.tanggal));
+      const rows = data.map(p => `
+        <tr>
+          <td class="border p-2">${p.tanggal}</td>
+          <td class="border p-2">${p.kategori}</td>
+          <td class="border p-2">${p.catatan || "-"}</td>
+          <td class="border p-2">Rp${p.nominal.toLocaleString()}</td>
+          <td class="border p-2 text-center">
+            <span class="text-blue-600 cursor-pointer" onclick="editPengeluaran('${p.id}', '${p.tanggal}', '${p.kategori}', '${p.catatan}', ${p.nominal})">Edit</span>
+            <span class="text-red-500 cursor-pointer ml-2" onclick="hapusPengeluaran('${p.id}')">Hapus</span>
+          </td>
+        </tr>`).join("");
+      document.getElementById("tabelPengeluaran").innerHTML = rows || `<tr><td colspan="5" class="text-center text-gray-500 p-4">Belum ada data</td></tr>`;
+    }
 
-      if (csv === "Tanggal,Kategori,Catatan,Nominal\n") {
-        alert("Tidak ada data pengeluaran bulan ini.");
-        return;
-      }
-
-      const blob = new Blob([csv], { type: "text/csv" });
-      const csvUrl = URL.createObjectURL(blob);
-
-      const params = {
-        to_email: auth.currentUser.email,
-        bulan: bulanFormatted,
-        rows_html: htmlRows,
-        csv_url: csvUrl
-      };
-
-      emailjs.send("gmailKU", "template_n1lowek", params)
-        .then(() => alert("Laporan berhasil dikirim ke email Anda."),
-          (error) => alert("Gagal mengirim email: " + JSON.stringify(error)));
-    };
-
-    // === SYNC BULAN DAN FILTER ===
-    document.addEventListener("DOMContentLoaded", () => {
-      const bulanInput = document.getElementById("bulan");
-      const filterInput = document.getElementById("filterBulan");
-      const tanggalInput = document.getElementById("tanggal");
-      const sortSelect = document.getElementById("sortBy");
-
-      tanggalInput.value = new Date().toISOString().split("T")[0];
-
-      bulanInput.addEventListener("change", () => {
-        filterInput.value = bulanInput.value;
-        loadRingkasan();
-        loadPengeluaran();
-      });
-
-      filterInput.addEventListener("change", () => {
-        bulanInput.value = filterInput.value;
-        loadRingkasan();
-        loadPengeluaran();
-      });
-
-      sortSelect.addEventListener("change", loadPengeluaran);
+    document.getElementById("sortOrder").addEventListener("change", loadPengeluaran);
+    document.getElementById("filterBulan").addEventListener("change", () => {
+      document.getElementById("bulan").value = document.getElementById("filterBulan").value;
+      loadRingkasan();
+      loadPengeluaran();
     });
   </script>
 </body>
 </html>
-
