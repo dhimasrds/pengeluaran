@@ -12,14 +12,14 @@
     })();
   </script>
 </head>
-<body class="bg-[#CBF3F0] min-h-screen p-4 sm:p-6">
+<body class="bg-[#C3D7F07A] min-h-screen p-4 sm:p-6">
 
   <!-- Login -->
-  <div id="login-section" class="max-w-md mx-auto bg-white shadow-lg p-6 rounded-lg border-t-4 border-[#2EC4B6]">
-    <h2 class="text-xl font-bold mb-4 text-center text-[#2EC4B6]">Login</h2>
+  <div id="login-section" class="max-w-md mx-auto bg-white shadow-lg p-6 rounded-lg border-t-4 border-[#1B2A2A]">
+    <h2 class="text-xl font-bold mb-4 text-center text-[#1B2A2A]">Login</h2>
     <input type="email" id="email" placeholder="Email" class="border p-2 mb-2 w-full rounded"/>
     <input type="password" id="password" placeholder="Password" class="border p-2 mb-4 w-full rounded"/>
-    <button onclick="login()" class="bg-[#FF9F1C] hover:bg-[#FFBF69] text-white font-semibold px-4 py-2 rounded w-full">Masuk</button>
+    <button onclick="login()" class="bg-[#1B2A2A] hover:bg-[#20bf55] text-white font-semibold px-4 py-2 rounded w-full">Masuk</button>
   </div>
 
   <!-- Dashboard -->
@@ -27,63 +27,63 @@
 
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-      <h1 class="text-2xl font-bold text-[#2EC4B6] flex items-center gap-2">
-        <span>💸</span> Rekap Pengeluaran Bulanan
+      <h1 class="text-2xl font-bold text-[#1B2A2A] flex items-center gap-2">
+        <span></span> Rekap Pengeluaran Bulanan
       </h1>
       <div class="flex items-center gap-3">
         <span id="userEmail" class="text-gray-700 text-sm sm:text-base"></span>
-        <button onclick="logout()" class="bg-[#FF9F1C] hover:bg-[#FFBF69] text-white px-4 py-2 rounded">Keluar</button>
+        <button onclick="logout()" class="bg-[#F44336] text-white px-4 py-2 rounded">Keluar</button>
       </div>
     </div>
 
     <!-- Ringkasan -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-[#FF9F1C]">
+      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-[#F44336]">
         <div class="flex items-center justify-between mb-2">
           <p class="text-gray-500 text-sm">Total Pengeluaran</p>
-          <span class="text-[#FF9F1C]">💰</span>
+          <span class="text-[#F44336]">💰</span>
         </div>
-        <p id="totalPengeluaran" class="text-xl font-bold text-[#FF9F1C]">Rp0</p>
+        <p id="totalPengeluaran" class="text-xl font-bold text-[#F44336]">Rp0</p>
       </div>
 
-      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-[#2EC4B6]">
+      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-[#20bf55]">
         <div class="flex items-center justify-between mb-2">
           <p class="text-gray-500 text-sm">Sisa Limit</p>
-          <span class="text-[#2EC4B6]">💳</span>
+          <span class="text-[#20bf55]">💳</span>
         </div>
-        <p id="sisaLimit" class="text-xl font-bold text-[#2EC4B6]">-</p>
+        <p id="sisaLimit" class="text-xl font-bold text-[#1B2A2A]">-</p>
         <div class="mt-2 w-full bg-gray-200 rounded-full h-2.5">
-          <div id="progressBar" class="bg-[#2EC4B6] h-2.5 rounded-full" style="width: 0%;"></div>
+          <div id="progressBar" class="bg-[#20bf55] h-2.5 rounded-full" style="width: 0%;"></div>
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-[#FFBF69]">
+      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-[#FF9F1C]">
         <div class="flex items-center justify-between mb-2">
           <p class="text-gray-500 text-sm">Utilisasi</p>
-          <span class="text-[#FFBF69]">📈</span>
+          <span class="text-[#FF9F1C]">📈</span>
         </div>
-        <p id="utilisasi" class="text-xl font-bold text-[#FFBF69]">0%</p>
+        <p id="utilisasi" class="text-xl font-bold text-[#FF9F1C]">0%</p>
       </div>
     </div>
 
     <!-- Limit & Form -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
       <!-- Limit -->
-      <div class="bg-white shadow rounded-lg p-4 border-t-4 border-[#2EC4B6]">
-        <h2 class="font-semibold mb-3 text-[#2EC4B6] flex items-center gap-2">🗓️ Atur Limit Bulanan</h2>
+      <div class="bg-white shadow rounded-lg p-4 border-t-4 border-[#1B2A2A]">
+        <h2 class="font-semibold mb-3 text-[#1B2A2A] flex items-center gap-2">🗓️ Atur Limit Bulanan</h2>
         <div class="flex flex-col sm:flex-row gap-2">
           <input type="month" id="bulan" class="border p-2 rounded w-full sm:w-auto"/>
           <input type="number" id="limit" placeholder="Limit Bulanan Rp" class="border p-2 rounded w-full sm:w-auto"/>
         </div>
         <div class="flex gap-2 mt-3">
-          <button onclick="simpanLimit()" class="bg-[#2EC4B6] hover:bg-[#20b5a7] text-white px-4 py-2 rounded w-full sm:w-auto">Simpan</button>
+          <button onclick="simpanLimit()" class="bg-[#20bf55] hover:bg-[#20b5a7] text-white px-4 py-2 rounded w-full sm:w-auto">Simpan</button>
           <button onclick="kirimEmail()" class="bg-[#FF9F1C] hover:bg-[#FFBF69] text-white px-4 py-2 rounded w-full sm:w-auto">Kirim ke Email</button>
         </div>
       </div>
 
       <!-- Form -->
-      <div class="bg-white shadow rounded-lg p-4 border-t-4 border-[#FF9F1C]">
-        <h2 class="font-semibold mb-3 text-[#FF9F1C] flex items-center gap-2">🧾 Form Pengeluaran</h2>
+      <div class="bg-white shadow rounded-lg p-4 border-t-4 border-[#6A5ACD]">
+        <h2 class="font-semibold mb-3 text-[#6A5ACD] flex items-center gap-2">🧾 Form Pengeluaran</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
           <input type="date" id="tanggal" class="border p-2 rounded"/>
           <select id="kategori" class="border p-2 rounded">
@@ -96,15 +96,15 @@
           <input type="text" id="catatan" placeholder="Catatan" class="border p-2 rounded"/>
           <input type="number" id="nominal" placeholder="Jumlah Rp" class="border p-2 rounded"/>
         </div>
-        <button id="btnSimpan" onclick="simpanPengeluaran()" class="bg-[#FF9F1C] hover:bg-[#FFBF69] text-white px-4 py-2 rounded w-full sm:w-auto">Tambah</button>
+        <button id="btnSimpan" onclick="simpanPengeluaran()" class="bg-[#6A5ACD] hover:bg-[#FFBF69] text-white px-4 py-2 rounded w-full sm:w-auto">Tambah</button>
       </div>
     </div>
 
     <!-- Riwayat -->
-    <div class="bg-white shadow rounded-lg p-4 border-t-4 border-[#2EC4B6]">
+    <div class="bg-white shadow rounded-lg p-4 border-t-4 border-[#1B2A2A]">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
         <div class="flex items-center gap-2">
-          <label for="filterBulan" class="font-medium text-gray-700">📅 Pilih Bulan:</label>
+          <label for="filterBulan" class="font-medium text-gray-700"> Pilih Bulan:</label>
           <input type="month" id="filterBulan" class="border p-2 rounded"/>
         </div>
         <div class="flex items-center gap-2">
@@ -119,7 +119,7 @@
       <div class="overflow-x-auto">
         <table class="w-full border-collapse text-sm sm:text-base">
           <thead>
-            <tr class="bg-[#CBF3F0] text-gray-700">
+            <tr class="bg-[#F0F4F8] text-gray-700">
               <th class="border p-2">Tanggal</th>
               <th class="border p-2">Kategori</th>
               <th class="border p-2">Catatan</th>
@@ -281,7 +281,7 @@
           <td class="border p-2">${p.catatan || "-"}</td>
           <td class="border p-2">Rp${p.nominal.toLocaleString()}</td>
           <td class="border p-2 text-center">
-            <span class="text-[#2EC4B6] cursor-pointer" onclick="editPengeluaran('${p.id}', '${p.tanggal}', '${p.kategori}', '${p.catatan}', ${p.nominal})">Edit</span>
+            <span class="text-[#1B2A2A] cursor-pointer" onclick="editPengeluaran('${p.id}', '${p.tanggal}', '${p.kategori}', '${p.catatan}', ${p.nominal})">Edit</span>
             <span class="text-red-500 cursor-pointer ml-2" onclick="hapusPengeluaran('${p.id}')">Hapus</span>
           </td>
         </tr>`).join("");
