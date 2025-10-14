@@ -87,6 +87,7 @@
       <div class="flex gap-2 mt-4">
         <button onclick="simpanLimit()" class="bg-[#2EC4B6] hover:bg-[#20bf55] text-white px-4 py-2 rounded w-full sm:w-auto shadow">Simpan</button>
         <button onclick="kirimEmail()" class="bg-[#FF9F1C] hover:bg-[#FFBF69] text-white px-4 py-2 rounded w-full sm:w-auto shadow">Kirim ke Email</button>
+        <button onclick="eksporCSV()" class="bg-[#4CAF50] hover:bg-[#45a049] text-white px-4 py-2 rounded w-full sm:w-auto shadow">Ekspor CSV</button>
       </div>
     </div>
 
@@ -205,6 +206,56 @@
     const uid = auth.currentUser.uid;
     await setDoc(doc(db, "limits", uid + "_" + bulan), { uid, bulan, limit });
     loadRingkasan();
+  };
+
+  function formatBulan(bulanStr) {
+    const [tahun, bulan] = bulanStr.split("-");
+    const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                       "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    return `${namaBulan[parseInt(bulan) - 1]} ${tahun}`;
+  }
+
+  window.eksporCSV = async function () {
+    const bulanStr = document.getElementById("bulan").value || new Date().toISOString().slice(0, 7);
+    const q = query(collection(db, "pengeluaran"), where("uid", "==", auth.currentUser.uid));
+    const snap = await getDocs(q);
+
+    let csv = "Tanggal,Kategori,Catatan,Nominal\n";
+    let total = 0;
+    let count = 0;
+
+    snap.forEach((d) => {
+      const p = d.data();
+      if (p.tanggal.startsWith(bulanStr)) {
+        csv += `${p.tanggal},${p.kategori},"${p.catatan || "-"}",${p.nominal}\n`;
+        total += p.nominal;
+        count++;
+      }
+    });
+
+    if (count === 0) {
+      alert("Tidak ada data pengeluaran untuk bulan ini.");
+      return;
+    }
+
+    // Tambahkan total di akhir
+    csv += `\nTotal Pengeluaran,,,"Rp${total.toLocaleString()}"\n`;
+    csv += `Jumlah Transaksi,${count},,\n`;
+
+    // Download file
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute("href", url);
+    link.setAttribute("download", `pengeluaran-${bulanStr}.csv`);
+    link.style.visibility = "hidden";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    alert(`File CSV berhasil diunduh!\nTotal: Rp${total.toLocaleString()} (${count} transaksi)`);
   };
 
   window.kirimEmail = async function () {
