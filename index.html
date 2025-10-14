@@ -166,6 +166,39 @@
   const db = getFirestore(app);
   let pengeluaranEditId = null;
 
+  // Session Management - Check if user is already logged in
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      // User is signed in - check session validity (24 hours)
+      const lastLogin = localStorage.getItem('lastLogin');
+      const now = new Date().getTime();
+      const oneDayInMs = 24 * 60 * 60 * 1000;
+
+      if (lastLogin && (now - parseInt(lastLogin)) < oneDayInMs) {
+        // Session still valid, show dashboard
+        document.getElementById("login-section").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        document.getElementById("userEmail").innerText = user.email;
+        const bulanNow = new Date().toISOString().slice(0, 7);
+        document.getElementById("bulan").value = bulanNow;
+        document.getElementById("filterBulan").value = bulanNow;
+        document.getElementById("tanggal").value = new Date().toISOString().split("T")[0];
+        loadRingkasan();
+        loadPengeluaran();
+      } else {
+        // Session expired, logout
+        localStorage.removeItem('lastLogin');
+        signOut(auth);
+        document.getElementById("login-section").style.display = "block";
+        document.getElementById("dashboard").style.display = "none";
+      }
+    } else {
+      // User is signed out
+      document.getElementById("login-section").style.display = "block";
+      document.getElementById("dashboard").style.display = "none";
+    }
+  });
+
   async function getLimit(bulan) {
     const uid = auth.currentUser.uid;
     const q = query(collection(db, "limits"), where("uid", "==", uid), where("bulan", "==", bulan));
@@ -179,6 +212,10 @@
     const password = document.getElementById("password").value;
     try {
       await signInWithEmailAndPassword(auth, email, password);
+
+      // Save login timestamp to localStorage
+      localStorage.setItem('lastLogin', new Date().getTime().toString());
+
       document.getElementById("login-section").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
       document.getElementById("userEmail").innerText = auth.currentUser.email;
@@ -194,6 +231,9 @@
   };
 
   window.logout = async function () {
+    // Clear session data
+    localStorage.removeItem('lastLogin');
+
     await signOut(auth);
     document.getElementById("login-section").style.display = "block";
     document.getElementById("dashboard").style.display = "none";
@@ -221,6 +261,7 @@
     const snap = await getDocs(q);
 
     let csv = "Tanggal,Kategori,Catatan,Nominal\n";
+    let htmlRows = "";
     let total = 0;
     let count = 0;
 
@@ -228,6 +269,13 @@
       const p = d.data();
       if (p.tanggal.startsWith(bulanStr)) {
         csv += `${p.tanggal},${p.kategori},"${p.catatan || "-"}",${p.nominal}\n`;
+        htmlRows += `
+          <tr>
+            <td style="border:1px solid #ccc;padding:8px;">${p.tanggal}</td>
+            <td style="border:1px solid #ccc;padding:8px;">${p.kategori}</td>
+            <td style="border:1px solid #ccc;padding:8px;">${p.catatan || "-"}</td>
+            <td style="border:1px solid #ccc;padding:8px;">Rp${p.nominal.toLocaleString()}</td>
+          </tr>`;
         total += p.nominal;
         count++;
       }
